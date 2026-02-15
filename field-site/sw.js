@@ -1,6 +1,6 @@
 // Service Worker for Field Site PWA
 // Bump this on every release to invalidate old caches.
-const CACHE_VERSION = "v4-2026-02-15-ui-refresh";
+const CACHE_VERSION = "v5-2026-02-15-update-fix-logo";
 const STATIC_CACHE = `field-site-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `field-site-runtime-${CACHE_VERSION}`;
 
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   "./version.json",
   "./assets/css/style.css",
   "./assets/JS/script.js",
+  "./assets/icons/brand-logo.png",
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png"
 ];

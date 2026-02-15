@@ -130,7 +130,13 @@ body::before {
   border-radius: 14px;
   background: linear-gradient(145deg, var(--primary), var(--primary-strong));
   box-shadow: var(--shadow-sm);
-  font-size: 24px;
+  overflow: hidden;
+}
+
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .h1 {
@@ -707,7 +713,9 @@ tr:last-child td {
     width: 36px;
     height: 36px;
     border-radius: 12px;
-  }`r`n.premium-banner {
+  }
+
+  .premium-banner {
     flex-direction: column;
     align-items: stretch;
   }

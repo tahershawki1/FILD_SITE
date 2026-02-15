@@ -368,6 +368,8 @@ function renderLoginPage(url) {
     .shell { width:min(92vw,430px); border-radius:24px; border:1px solid rgba(129,156,223,.35); background:#111a31; box-shadow:0 24px 60px rgba(0,0,0,.45); overflow:hidden; }
     .status { height:6px; background:linear-gradient(90deg,#22c779,#598dff,#8b77ff); }
     .card { padding:24px 20px; }
+    .logo-wrap { width:64px; height:64px; border-radius:16px; overflow:hidden; border:1px solid rgba(117,140,189,.45); margin:0 auto 10px; background:#0b1220; }
+    .logo-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
     h1 { margin:0 0 6px; font-size:22px; }
     p.sub { margin:0 0 18px; color:#9ab0db; font-size:13px; }
     label { display:block; margin:10px 0 6px; font-size:13px; color:#b6c6e6; font-weight:700; }
@@ -383,6 +385,7 @@ function renderLoginPage(url) {
   <main class="shell">
     <div class="status"></div>
     <section class="card">
+      <div class="logo-wrap"><img src="/assets/icons/brand-logo.png" alt="Logo"></div>
       <h1>الموقع الميداني</h1>
       <p class="sub">تسجيل الدخول للوصول إلى التطبيق</p>
       ${errorHtml}
