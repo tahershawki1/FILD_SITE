@@ -77,8 +77,14 @@ async function handleAppLogin(request, env) {
 
   const users = await loadUsers(env);
   const expectedPassword = users.get(username);
+  const adminUser = (env.ADMIN_USERNAME || "admin").trim();
+  const adminPassword = (env.ADMIN_PASSWORD || "").trim();
+  const isAdminCredentials =
+    !!adminPassword &&
+    safeEqual(username, adminUser) &&
+    safeEqual(password, adminPassword);
 
-  if (!expectedPassword || !safeEqual(password, expectedPassword)) {
+  if ((!expectedPassword || !safeEqual(password, expectedPassword)) && !isAdminCredentials) {
     return redirect(`/login?error=1&next=${encodeURIComponent(next)}`);
   }
 
@@ -167,14 +173,8 @@ function handleAdminLogout() {
 }
 
 async function handleAdminPage(request, env, url) {
-  const adminSession = await readSessionFromCookie(
-    request,
-    env,
-    ADMIN_SESSION_COOKIE,
-    "admin"
-  );
-
-  if (!adminSession.ok) {
+  const adminAccess = await requireAdminAccess(request, env);
+  if (!adminAccess.ok) {
     return redirect("/admin/login");
   }
 
@@ -188,7 +188,7 @@ async function handleAdminPage(request, env, url) {
   const error = String(url.searchParams.get("error") || "");
 
   return renderAdminPage({
-    adminUsername: adminSession.username,
+    adminUsername: adminAccess.username,
     usersArray,
     mode,
     message,
@@ -199,14 +199,8 @@ async function handleAdminPage(request, env, url) {
 async function handleAdminAddUser(request, env) {
   if (request.method !== "POST") return methodNotAllowed();
 
-  const adminSession = await readSessionFromCookie(
-    request,
-    env,
-    ADMIN_SESSION_COOKIE,
-    "admin"
-  );
-
-  if (!adminSession.ok) {
+  const adminAccess = await requireAdminAccess(request, env);
+  if (!adminAccess.ok) {
     return redirect("/admin/login");
   }
 
@@ -244,14 +238,8 @@ async function handleAdminAddUser(request, env) {
 async function handleAdminDeleteUser(request, env) {
   if (request.method !== "POST") return methodNotAllowed();
 
-  const adminSession = await readSessionFromCookie(
-    request,
-    env,
-    ADMIN_SESSION_COOKIE,
-    "admin"
-  );
-
-  if (!adminSession.ok) {
+  const adminAccess = await requireAdminAccess(request, env);
+  if (!adminAccess.ok) {
     return redirect("/admin/login");
   }
 
@@ -285,14 +273,8 @@ async function handleAdminDeleteUser(request, env) {
 async function handleAdminUpdateUser(request, env) {
   if (request.method !== "POST") return methodNotAllowed();
 
-  const adminSession = await readSessionFromCookie(
-    request,
-    env,
-    ADMIN_SESSION_COOKIE,
-    "admin"
-  );
-
-  if (!adminSession.ok) {
+  const adminAccess = await requireAdminAccess(request, env);
+  if (!adminAccess.ok) {
     return redirect("/admin/login");
   }
 
@@ -398,7 +380,6 @@ function renderLoginPage(url) {
         <button type="submit">دخول</button>
       </form>
       <div class="hint">نسخة محمية للاستخدام الداخلي</div>
-      <div class="links"><a href="/admin/login">Admin panel</a></div>
     </section>
   </main>
 </body>
@@ -630,6 +611,30 @@ function isValidPassword(password) {
 function isAppAdminUser(username, env) {
   const adminUsername = (env.ADMIN_USERNAME || "admin").trim();
   return safeEqual(String(username || ""), adminUsername);
+}
+
+async function requireAdminAccess(request, env) {
+  const adminSession = await readSessionFromCookie(
+    request,
+    env,
+    ADMIN_SESSION_COOKIE,
+    "admin"
+  );
+  if (adminSession.ok && isAppAdminUser(adminSession.username, env)) {
+    return { ok: true, username: adminSession.username };
+  }
+
+  const appSession = await readSessionFromCookie(
+    request,
+    env,
+    APP_SESSION_COOKIE,
+    "app"
+  );
+  if (appSession.ok && isAppAdminUser(appSession.username, env)) {
+    return { ok: true, username: appSession.username };
+  }
+
+  return { ok: false, username: "" };
 }
 
 async function injectAdminShortcut(request, response) {
