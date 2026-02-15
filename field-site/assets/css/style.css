@@ -21,6 +21,8 @@
   --shadow-sm: 0 6px 14px rgba(0, 0, 0, 0.18);
   --font-main: "Readex Pro", "Tajawal", "Noto Sans Arabic", "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Code", ui-monospace, monospace;
+  --logo-badge-bg: linear-gradient(145deg, #e9f5ff 0%, #d5ecff 55%, #c6e4ff 100%);
+  --logo-badge-border: #8fc2ee;
 }
 
 body.light-mode {
@@ -129,7 +131,8 @@ body::before {
   display: grid;
   place-items: center;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  background: var(--logo-badge-bg);
+  border: 1px solid var(--logo-badge-border);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   padding: 2px;
@@ -699,16 +702,17 @@ tr:last-child td {
   }
 
   .logo-icon {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--surface) 84%, transparent);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  padding: 4px;
-}
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--logo-badge-bg);
+    border: 1px solid var(--logo-badge-border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    padding: 4px;
+  }
 
   .headActions {
     gap: 6px;
