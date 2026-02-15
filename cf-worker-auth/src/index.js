@@ -55,11 +55,12 @@ export default {
     }
 
     const assetResponse = await env.ASSETS.fetch(request);
-    if (!isAppAdminUser(session.username, env)) {
-      return assetResponse;
+    const safeAssetResponse = applyNoStoreToHtmlResponse(assetResponse);
+    if (!session.isAdmin) {
+      return safeAssetResponse;
     }
 
-    return injectAdminShortcut(request, assetResponse);
+    return injectAdminShortcut(request, safeAssetResponse);
   },
 };
 
@@ -92,6 +93,7 @@ async function handleAppLogin(request, env) {
     {
       typ: "app",
       u: username,
+      adm: isAdminCredentials,
       exp: Date.now() + SESSION_TTL_SECONDS * 1000,
     },
     env
@@ -105,6 +107,9 @@ async function handleAppLogin(request, env) {
     "Set-Cookie",
     buildSessionCookie(APP_SESSION_COOKIE, token, SESSION_TTL_SECONDS)
   );
+  if (!isAdminCredentials) {
+    headers.append("Set-Cookie", clearSessionCookie(ADMIN_SESSION_COOKIE));
+  }
 
   return new Response(null, { status: 302, headers });
 }
@@ -115,6 +120,7 @@ function handleAppLogout() {
     "Cache-Control": "no-store",
   });
   headers.append("Set-Cookie", clearSessionCookie(APP_SESSION_COOKIE));
+  headers.append("Set-Cookie", clearSessionCookie(ADMIN_SESSION_COOKIE));
 
   return new Response(null, { status: 302, headers });
 }
@@ -623,30 +629,28 @@ function isValidPassword(password) {
   return password.length >= 6;
 }
 
-function isAppAdminUser(username, env) {
-  const adminUsername = (env.ADMIN_USERNAME || "admin").trim();
-  return safeEqual(String(username || ""), adminUsername);
-}
-
 async function requireAdminAccess(request, env) {
-  const adminSession = await readSessionFromCookie(
-    request,
-    env,
-    ADMIN_SESSION_COOKIE,
-    "admin"
-  );
-  if (adminSession.ok && isAppAdminUser(adminSession.username, env)) {
-    return { ok: true, username: adminSession.username };
-  }
-
   const appSession = await readSessionFromCookie(
     request,
     env,
     APP_SESSION_COOKIE,
     "app"
   );
-  if (appSession.ok && isAppAdminUser(appSession.username, env)) {
-    return { ok: true, username: appSession.username };
+  if (appSession.ok) {
+    if (appSession.isAdmin) {
+      return { ok: true, username: appSession.username };
+    }
+    return { ok: false, username: "" };
+  }
+
+  const adminSession = await readSessionFromCookie(
+    request,
+    env,
+    ADMIN_SESSION_COOKIE,
+    "admin"
+  );
+  if (adminSession.ok) {
+    return { ok: true, username: adminSession.username };
   }
 
   return { ok: false, username: "" };
@@ -696,7 +700,30 @@ async function readSessionFromCookie(request, env, cookieName, expectedType) {
     return { ok: false };
   }
 
-  return { ok: true, username: String(payload.u || "") };
+  return {
+    ok: true,
+    username: String(payload.u || ""),
+    isAdmin: payload.typ === "app" ? payload.adm === true : true,
+  };
+}
+
+function applyNoStoreToHtmlResponse(response) {
+  if (!response || response.status !== 200) return response;
+  const contentType = response.headers.get("Content-Type") || "";
+  if (!contentType.includes("text/html")) return response;
+
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  headers.set("Pragma", "no-cache");
+  headers.set("Expires", "0");
+  headers.set("Vary", "Cookie");
+  headers.delete("Content-Length");
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 async function createSessionToken(payloadObj, env) {
