@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ù…ÙŠØ¯Ø§Ù†ÙŠ - Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø´Ø§Ø±ÙŠØ¹ Ø§Ù„Ù…ÙŠØ¯Ø§Ù†ÙŠØ©</title>
+  <title>الموقع الميداني - إدارة المشاريع الميدانية</title>
   <meta name="theme-color" content="#63a5ff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -12,10 +12,10 @@
 
   <!--
     ========================= MAIN PROJECT COMMENT =========================
-    âš ï¸ WARNING FOR ANY AGENT / DEVELOPER (DO NOT DELETE) âš ï¸
-    - Ù…Ù…Ù†ÙˆØ¹ Ø­Ø°Ù Ø£ÙŠ Ø¨Ù„ÙˆÙƒ ØªØ¹Ù„ÙŠÙ‚ Ø¹Ù„ÙŠÙ‡ "MAIN PROJECT COMMENT" ÙÙŠ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„.
-    - Ø§Ù„ØªØ¹Ù„ÙŠÙ‚Ø§Øª Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ© Ø¬Ø²Ø¡ Ù…Ù† ØªÙ†Ø¸ÙŠÙ… Ø§Ù„Ù…Ù„Ù ÙˆØªÙ‚Ø³ÙŠÙ…Ù‡ (Pages/Sections/Storage).
-    - Ø­Ø°ÙÙ‡Ø§ ÙŠØ¶ÙŠÙ‘Ø¹ Ù‡ÙŠÙƒÙ„ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹ ÙˆÙŠØµØ¹Ù‘Ø¨ Ø§Ù„ØªØ·ÙˆÙŠØ± Ù„Ø§Ø­Ù‚Ù‹Ø§.
+    ⚠️ WARNING FOR ANY AGENT / DEVELOPER (DO NOT DELETE) ⚠️
+    - ممنوع حذف أي بلوك تعليق عليه "MAIN PROJECT COMMENT" في المشروع بالكامل.
+    - التعليقات الرئيسية جزء من تنظيم الملف وتقسيمه (Pages/Sections/Storage).
+    - حذفها يضيّع هيكل المشروع ويصعّب التطوير لاحقًا.
     =======================================================================
   -->
 
@@ -26,7 +26,7 @@
       2) TASK_PAGE  : Details for selected card        -> #viewTask
 
     Special Task UI:
-      - taskId === "new-level" -> "Ø¹Ù„Ø§Ù… Ø¬ÙŠØª Ù„ÙÙ„ Ø¬Ø¯ÙŠØ¯" has a custom form + calculators.
+      - taskId === "new-level" -> "علام جيت لفل جديد" has a custom form + calculators.
 
     Storage:
       - localStorage key: field_site_onefile_v5
@@ -41,7 +41,7 @@
 <body>
   <!--
     ========================= MAIN PROJECT COMMENT =========================
-    âš ï¸ DO NOT DELETE MAIN COMMENTS âš ï¸
+    ⚠️ DO NOT DELETE MAIN COMMENTS ⚠️
     - Body contains HOME_PAGE and TASK_PAGE in one file.
     - JS toggles view and renders special UI for "new-level".
     =======================================================================
@@ -55,13 +55,13 @@
             <img src="./assets/icons/brand-logo.png" alt="Field Site Logo" class="brand-logo-img">
           </div>
           <div style="min-width:0">
-            <h1 class="h1" id="topTitle">Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ù…ÙŠØ¯Ø§Ù†ÙŠ</h1>
-            <p class="sub" id="topSub">Ø¥Ø¯Ø§Ø±Ø© Ø¨Ù†ÙˆØ¯ Ø§Ù„Ø¹Ù…Ù„ ÙˆØ§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙŠØ¯Ø§Ù†ÙŠØ© Ù…Ø¹ Ø§Ù„ØµÙˆØ±</p>
+            <h1 class="h1" id="topTitle">الموقع الميداني</h1>
+            <p class="sub" id="topSub">إدارة بنود العمل والبيانات الميدانية مع الصور</p>
           </div>
         </div>
         <div class="headActions">
-          <button id="themeToggle" class="btn-icon" title="ØªØ¨Ø¯ÙŠÙ„ Ø§Ù„Ù…Ø¸Ù‡Ø±">â˜€ï¸</button>
-          <a href="/logout" class="btn-icon logout-btn" title="ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬" aria-label="ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬">âŽ‹</a>
+          <button id="themeToggle" class="btn-icon" title="تبديل المظهر">☀️</button>
+          <a href="/logout" class="btn-icon logout-btn" title="تسجيل الخروج" aria-label="تسجيل الخروج">⎋</a>
         </div>
       </div>
     </div>
@@ -69,15 +69,15 @@
 
   <div id="updateBanner" class="premium-banner" hidden>
     <div class="banner-content">
-      <div class="banner-icon">â¬‡ï¸</div>
+      <div class="banner-icon">⬇️</div>
       <div>
-        <p class="banner-title">Ù†Ø³Ø®Ø© Ø¬Ø¯ÙŠØ¯Ø© Ù…ØªØ§Ø­Ø©</p>
-        <span id="updateText" class="banner-desc">ØªØ­Ø¯ÙŠØ« Ø§Ù„ØªØ·Ø¨ÙŠÙ‚ Ù„Ù„Ø­ØµÙˆÙ„ Ø¹Ù„Ù‰ Ø£Ø­Ø¯Ø« Ø§Ù„Ù…ÙŠØ²Ø§Øª</span>
+        <p class="banner-title">نسخة جديدة متاحة</p>
+        <span id="updateText" class="banner-desc">تحديث التطبيق للحصول على أحدث الميزات</span>
       </div>
     </div>
     <div class="updateActions">
-      <button id="btnUpdateNow" class="btn primary-small">ØªØ­Ø¯ÙŠØ«</button>
-      <button id="btnLater" class="btn-text">Ù„Ø§Ø­Ù‚Ù‹Ø§</button>
+      <button id="btnUpdateNow" class="btn primary-small">تحديث</button>
+      <button id="btnLater" class="btn-text">لاحقًا</button>
     </div>
   </div>
 
@@ -87,11 +87,11 @@
       <!-- ========================= PAGE: HOME_PAGE ========================= -->
       <section class="view active" id="viewHome">
         <div class="home-intro">
-          <p class="intro-text">Ø§Ø®ØªØ± Ø¨Ù†Ø¯ Ù…Ù† Ø§Ù„Ø£Ø¨Ù†Ø§Ø¯ Ø£Ø¯Ù†Ø§Ù‡ Ù„Ø¨Ø¯Ø¡ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ÙˆØ§Ù„ØµÙˆØ±</p>
+          <p class="intro-text">اختر بند من الأبناد أدناه لبدء إدخال البيانات والصور</p>
         </div>
         <section class="cards-grid" id="cards"></section>
         <div class="grid-footer" id="gridFooter" style="display:none;">
-          <p class="completion-text">ðŸ“Š Ø§ÙƒØªÙ…Ù„Øª Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¨Ù†ÙˆØ¯ Ø¨Ù†Ø¬Ø§Ø­!</p>
+          <p class="completion-text">📊 اكتملت جميع البنود بنجاح!</p>
         </div>
       </section>
 
@@ -99,19 +99,19 @@
       <section class="view" id="viewTask">
         <div class="task-header">
           <button class="btn-back" id="btnBack">
-            <span class="back-icon">â¬…ï¸</span>
-            Ø§Ù„Ø¹ÙˆØ¯Ø©
+            <span class="back-icon">⬅️</span>
+            العودة
           </button>
           <button class="btn-reset" id="btnResetTask">
-            <span class="reset-icon">ðŸ—‘ï¸</span>
-            Ø¥Ø¹Ø§Ø¯Ø© ØªØ¹ÙŠÙŠÙ†
+            <span class="reset-icon">🗑️</span>
+            إعادة تعيين
           </button>
         </div>
 
         <section class="task-card">
           <div class="task-title-section">
-            <h2 class="h2" id="taskTitle">â€”</h2>
-            <p class="sub" id="taskDesc">â€”</p>
+            <h2 class="h2" id="taskTitle">—</h2>
+            <p class="sub" id="taskDesc">—</p>
           </div>
           <div class="steps" id="stepsBar" style="display:none"></div>
         </section>
@@ -123,8 +123,8 @@
   </main>
 
   <!-- Scripts -->
-    <script src="./assets/JS/script.js" defer></script>
-  <script>
+  <script src="./assets/JS/script.js" defer></script>
+    <script>
     (() => {
       if (!("serviceWorker" in navigator)) return;
 
@@ -287,7 +287,4 @@
   </script>
 </body>
 </html>
-
-
-
 
