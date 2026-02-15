@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>الموقع الميداني - إدارة المشاريع الميدانية</title>
+  <meta name="theme-color" content="#63a5ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Field Site">
+  <link rel="manifest" href="./manifest.json">
+
+  <!--
+    ========================= MAIN PROJECT COMMENT =========================
+    ⚠️ WARNING FOR ANY AGENT / DEVELOPER (DO NOT DELETE) ⚠️
+    - ممنوع حذف أي بلوك تعليق عليه "MAIN PROJECT COMMENT" في المشروع بالكامل.
+    - التعليقات الرئيسية جزء من تنظيم الملف وتقسيمه (Pages/Sections/Storage).
+    - حذفها يضيّع هيكل المشروع ويصعّب التطوير لاحقًا.
+    =======================================================================
+  -->
+
+  <!--
+    ========================= PAGE MAP (DO NOT DELETE) ======================
+    Virtual pages inside ONE file:
+      1) HOME_PAGE  : Cards list (project work items)  -> #viewHome
+      2) TASK_PAGE  : Details for selected card        -> #viewTask
+
+    Special Task UI:
+      - taskId === "new-level" -> "علام جيت لفل جديد" has a custom form + calculators.
+
+    Storage:
+      - localStorage key: field_site_onefile_v5
+      - state = { activeTaskId, tasksData }
+      - tasksData[taskId] varies by task type (new-level has extra fields).
+    =======================================================================
+  -->
+
+  <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+
+<body>
+  <!--
+    ========================= MAIN PROJECT COMMENT =========================
+    ⚠️ DO NOT DELETE MAIN COMMENTS ⚠️
+    - Body contains HOME_PAGE and TASK_PAGE in one file.
+    - JS toggles view and renders special UI for "new-level".
+    =======================================================================
+  -->
+
+  <header class="premium-header">
+    <div class="wrap">
+      <div class="headRow">
+        <div class="header-brand">
+          <div class="logo-icon">🏗️</div>
+          <div style="min-width:0">
+            <h1 class="h1" id="topTitle">الموقع الميداني</h1>
+            <p class="sub" id="topSub">إدارة بنود العمل والبيانات الميدانية مع الصور</p>
+          </div>
+        </div>
+        <div class="headActions">
+          <button id="themeToggle" class="btn-icon" title="تبديل المظهر">☀️</button>
+          <a href="/logout" class="btn-icon logout-btn" title="تسجيل الخروج" aria-label="تسجيل الخروج">⎋</a>
+          <div class="status-badge" id="savePill">
+            <span class="status-dot"></span>
+            <span id="statusText">جاهز</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="updateBanner" class="premium-banner" hidden>
+    <div class="banner-content">
+      <div class="banner-icon">⬇️</div>
+      <div>
+        <p class="banner-title">نسخة جديدة متاحة</p>
+        <span id="updateText" class="banner-desc">تحديث التطبيق للحصول على أحدث الميزات</span>
+      </div>
+    </div>
+    <div class="updateActions">
+      <button id="btnUpdateNow" class="btn primary-small">تحديث</button>
+      <button id="btnLater" class="btn-text">لاحقًا</button>
+    </div>
+  </div>
+
+  <main class="content-wrapper">
+    <div class="wrap safePad">
+
+      <!-- ========================= PAGE: HOME_PAGE ========================= -->
+      <section class="view active" id="viewHome">
+        <div class="home-intro">
+          <p class="intro-text">اختر بند من الأبناد أدناه لبدء إدخال البيانات والصور</p>
+        </div>
+        <section class="cards-grid" id="cards"></section>
+        <div class="grid-footer" id="gridFooter" style="display:none;">
+          <p class="completion-text">📊 اكتملت جميع البنود بنجاح!</p>
+        </div>
+      </section>
+
+      <!-- ========================= PAGE: TASK_PAGE ========================= -->
+      <section class="view" id="viewTask">
+        <div class="task-header">
+          <button class="btn-back" id="btnBack">
+            <span class="back-icon">⬅️</span>
+            العودة
+          </button>
+          <button class="btn-reset" id="btnResetTask">
+            <span class="reset-icon">🗑️</span>
+            إعادة تعيين
+          </button>
+        </div>
+
+        <section class="task-card">
+          <div class="task-title-section">
+            <h2 class="h2" id="taskTitle">—</h2>
+            <p class="sub" id="taskDesc">—</p>
+          </div>
+          <div class="steps" id="stepsBar" style="display:none"></div>
+        </section>
+
+        <div id="taskBody" class="task-body-container"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="./assets/JS/script.js" defer></script>
+    <script>
+    (() => {
+      if (!("serviceWorker" in navigator)) return;
+
+      const banner = document.getElementById("updateBanner");
+      const updateNowBtn = document.getElementById("btnUpdateNow");
+      const laterBtn = document.getElementById("btnLater");
+      const updateText = document.getElementById("updateText");
+
+      let registrationRef = null;
+      let waitingWorker = null;
+      let refreshing = false;
+
+      function showUpdateBanner(version) {
+        if (!banner) return;
+        if (updateText && version) {
+          updateText.textContent = `نسخة جديدة (${version}) متاحة للتطبيق.`;
+        } else if (updateText) {
+          updateText.textContent = "نسخة جديدة متاحة للتطبيق.";
+        }
+        banner.hidden = false;
+      }
+
+      function hideUpdateBanner() {
+        if (!banner) return;
+        banner.hidden = true;
+      }
+
+      async function fetchLatestVersion() {
+        try {
+          const response = await fetch("./version.json", { cache: "no-store" });
+          if (!response.ok) return "";
+          const payload = await response.json();
+          return payload.version || "";
+        } catch (_) {
+          return "";
+        }
+      }
+
+      async function markWorkerWaiting(worker) {
+        if (!worker) return;
+        waitingWorker = worker;
+        const version = await fetchLatestVersion();
+        showUpdateBanner(version);
+      }
+
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+
+      if (updateNowBtn) {
+        updateNowBtn.addEventListener("click", () => {
+          if (waitingWorker) {
+            waitingWorker.postMessage({ type: "SKIP_WAITING" });
+            return;
+          }
+
+          if (registrationRef) {
+            registrationRef.update().catch(() => {});
+          }
+        });
+      }
+
+      if (laterBtn) {
+        laterBtn.addEventListener("click", hideUpdateBanner);
+      }
+
+      window.addEventListener("load", async () => {
+        try {
+          const registration = await navigator.serviceWorker.register("./sw.js");
+          registrationRef = registration;
+          console.log("SW registered:", registration);
+
+          if (registration.waiting) {
+            await markWorkerWaiting(registration.waiting);
+          }
+
+          registration.addEventListener("updatefound", () => {
+            const installingWorker = registration.installing;
+            if (!installingWorker) return;
+
+            installingWorker.addEventListener("statechange", async () => {
+              if (
+                installingWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                await markWorkerWaiting(installingWorker);
+              }
+            });
+          });
+
+          setInterval(() => {
+            registration.update().catch(() => {});
+          }, 60 * 1000);
+        } catch (registrationError) {
+          console.log("SW registration failed:", registrationError);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+

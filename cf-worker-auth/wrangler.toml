@@ -1,0 +1,8 @@
+name = "atlas"
+main = "src/index.js"
+compatibility_date = "2026-02-15"
+
+[assets]
+directory = "../field-site"
+binding = "ASSETS"
+run_worker_first = true

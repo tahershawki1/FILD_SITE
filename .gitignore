@@ -1,0 +1,42 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+
+# Node
+node_modules/
+**/node_modules/
+
+# Flutter / Dart
+.dart_tool/
+**/.dart_tool/
+build/
+**/build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+
+# Cloudflare local state / secrets
+.wrangler/
+**/.wrangler/
+cf-worker-auth/session.txt
+.env
+.env.*
+
+# Android / Gradle
+.gradle/
+**/.gradle/
+local.properties
+
+# macOS / iOS generated flutter files
+**/Flutter/ephemeral/
+
+# Coverage
+coverage/
