@@ -6,3 +6,9 @@ compatibility_date = "2026-02-15"
 directory = "../field-site"
 binding = "ASSETS"
 run_worker_first = true
+
+# Optional (required for admin add/delete users):
+[[kv_namespaces]]
+binding = "USERS_KV"
+id = "18901b5ddc754fbcba12d448e26ce5d1"
+preview_id = "edad56e7c4c94180b121331ba28a75fe"
