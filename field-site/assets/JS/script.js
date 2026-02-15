@@ -1,19 +1,19 @@
-﻿/*
+/*
       ========================= MAIN PROJECT COMMENT =========================
-      âš ï¸ WARNING FOR ANY AGENT / DEVELOPER (DO NOT DELETE) âš ï¸
-      - Ù…Ù…Ù†ÙˆØ¹ Ø­Ø°Ù Ø£ÙŠ Ø¨Ù„ÙˆÙƒ ØªØ¹Ù„ÙŠÙ‚ Ø¹Ù„ÙŠÙ‡ "MAIN PROJECT COMMENT" ÙÙŠ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„.
+      ⚠️ WARNING FOR ANY AGENT / DEVELOPER (DO NOT DELETE) ⚠️
+      - ممنوع حذف أي بلوك تعليق عليه "MAIN PROJECT COMMENT" في المشروع بالكامل.
       =======================================================================
     */
 
     const TASKS = [
-      { id:"new-level", title:"Ø¹Ù„Ø§Ù… Ø¬ÙŠØª Ù„ÙÙÙ„ Ø¬Ø¯ÙŠØ¯", desc:"Ø¥Ø«Ø¨Ø§Øª Ù†Ù‚Ø·ØªÙŠÙ† + Ø­Ø³Ø§Ø¨ Ù… Ø³ Ù… + Ø­Ø³Ø§Ø¨ Ù‚Ø±Ø§Ø¡Ø© Ø§Ù„Ø¬ÙŠØª Ù„ÙÙ„ + ØµÙˆØ±." },
-      { id:"check-tbm-villa-wall", title:"ØªØ´ÙŠÙŠÙƒ ØªØ§ÙŠØ¨ÙŠÙ… (TBM) ÙÙŠÙ„Ø§ Ø£Ùˆ Ø³ÙˆØ±", desc:"(Ù„Ø§Ø­Ù‚Ù‹Ø§) ÙÙˆØ±Ù… Ù…Ø±Ø§Ø¬Ø¹Ø© TBM." },
-      { id:"check-slabs", title:"ØªØ´ÙŠÙŠÙƒ Ø¹Ù„Ù‰ Ø§Ù„Ø£Ø³Ù‚Ù", desc:"(Ù„Ø§Ø­Ù‚Ù‹Ø§) ÙÙˆØ±Ù… Ø§Ù„Ø£Ø³Ù‚Ù." },
-      { id:"check-excavation-level", title:"ØªØ´ÙŠÙŠÙƒ Ø¹Ù„Ù‰ Ù…Ù†Ø³ÙˆØ¨ Ø§Ù„Ø­ÙØ±", desc:"(Ù„Ø§Ø­Ù‚Ù‹Ø§) ÙÙˆØ±Ù… Ø§Ù„Ø­ÙØ±." },
-      { id:"stake-demarcation", title:"ØªÙˆÙ‚ÙŠØ¹ Ù†Ù‚Ø§Ø· Ø§Ù„Ø¯ÙŠÙ…Ø§Ø±ÙƒØ´Ù†", desc:"(Ù„Ø§Ø­Ù‚Ù‹Ø§) ÙÙˆØ±Ù… Ø§Ù„Ø¯ÙŠÙ…Ø§Ø±ÙƒØ´Ù†." },
-      { id:"stake-villa-points", title:"ØªÙˆÙ‚ÙŠØ¹ Ù†Ù‚Ø§Ø· Ø¯Ø§Ø®Ù„ Ø§Ù„ÙÙŠÙ„Ø§", desc:"(Ù„Ø§Ø­Ù‚Ù‹Ø§) ÙÙˆØ±Ù… Ù†Ù‚Ø§Ø· Ø§Ù„ÙÙŠÙ„Ø§." },
-      { id:"survey-for-consultant", title:"Ø±ÙØ¹ Ø£Ø±Ø¶ Ù„Ù„Ø§Ø³ØªØ´Ø§Ø±ÙŠ", desc:"(Ù„Ø§Ø­Ù‚Ù‹Ø§) ÙÙˆØ±Ù… Ø§Ù„Ø±ÙØ¹ Ù„Ù„Ø§Ø³ØªØ´Ø§Ø±ÙŠ." },
-      { id:"natural-ground-survey", title:"Ø±ÙØ¹ Ø£Ø±Ø¶ Ø·Ø¨ÙŠØ¹ÙŠØ©", desc:"(Ù„Ø§Ø­Ù‚Ù‹Ø§) ÙÙˆØ±Ù… Ø§Ù„Ø£Ø±Ø¶ Ø§Ù„Ø·Ø¨ÙŠØ¹ÙŠØ©." },
+      { id:"new-level", title:"علام جيت لِفل جديد", desc:"إثبات نقطتين + حساب م س م + حساب قراءة الجيت لفل + صور." },
+      { id:"check-tbm-villa-wall", title:"تشييك تايبيم (TBM) فيلا أو سور", desc:"(لاحقًا) فورم مراجعة TBM." },
+      { id:"check-slabs", title:"تشييك على الأسقف", desc:"(لاحقًا) فورم الأسقف." },
+      { id:"check-excavation-level", title:"تشييك على منسوب الحفر", desc:"(لاحقًا) فورم الحفر." },
+      { id:"stake-demarcation", title:"توقيع نقاط الديماركشن", desc:"(لاحقًا) فورم الديماركشن." },
+      { id:"stake-villa-points", title:"توقيع نقاط داخل الفيلا", desc:"(لاحقًا) فورم نقاط الفيلا." },
+      { id:"survey-for-consultant", title:"رفع أرض للاستشاري", desc:"(لاحقًا) فورم الرفع للاستشاري." },
+      { id:"natural-ground-survey", title:"رفع أرض طبيعية", desc:"(لاحقًا) فورم الأرض الطبيعية." },
     ];
 
     const STORE_KEY = "field_site_onefile_v5";
@@ -48,10 +48,10 @@
     function save(){
       try{
         localStorage.setItem(STORE_KEY, JSON.stringify(state));
-        setSave("ØªÙ…");
+        setSave("تم");
       }catch(e){
         console.error(e);
-        setSave("ÙØ´Ù„", false);
+        setSave("فشل", false);
       }
     }
     const saveDebounced = debounce(save, 350);
@@ -106,11 +106,11 @@
       state.activeTaskId = null;
       $("#viewHome").classList.add("active");
       $("#viewTask").classList.remove("active");
-      $("#topTitle").textContent = "ðŸ“Œ Ø§Ù„ØµÙØ­Ø© Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©";
-      $("#topSub").textContent = "Ø§Ø®ØªØ± Ø¨Ù†Ø¯ Ø§Ù„Ø´ØºÙ„ â€” ÙƒÙ„ Ø¨Ù†Ø¯ Ù„Ù‡ Ø¨ÙŠØ§Ù†Ø§Øª ÙˆØµÙˆØ±";
+      $("#topTitle").textContent = "📌 الصفحة الرئيسية";
+      $("#topSub").textContent = "اختر بند الشغل — كل بند له بيانات وصور";
       $("#stepsBar").style.display = "none";
-      renderHomeCards(); // âœ… Re-render cards after data changes
-      setSave("Ø¬Ø§Ù‡Ø²");
+      renderHomeCards(); // ✅ Re-render cards after data changes
+      setSave("جاهز");
       saveDebounced();
     }
 
@@ -129,7 +129,7 @@
         d.gate = d.gate || {
           gateLevel:"",
           reading:"",
-          plus1mEnabled: false // âœ… toggle behavior
+          plus1mEnabled: false // ✅ toggle behavior
         };
         d.newLevelStep = d.newLevelStep || 1;
         d.site = d.site || "";
@@ -147,7 +147,7 @@
       $("#viewTask").classList.add("active");
 
       $("#topTitle").textContent = task.title;
-      $("#topSub").textContent = "Ø£Ø¯Ø®Ù„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ÙˆØ§Ø±ÙØ¹ Ø§Ù„ØµÙˆØ±";
+      $("#topSub").textContent = "أدخل البيانات وارفع الصور";
 
       $("#taskTitle").textContent = task.title;
       $("#taskDesc").textContent = task.desc;
@@ -155,7 +155,7 @@
       if(taskId === "new-level") renderNewLevelTask();
       else renderGenericTask(taskId);
 
-      setSave("Ø¬Ø§Ù‡Ø²");
+      setSave("جاهز");
       saveDebounced();
     }
 
@@ -163,28 +163,28 @@
       const d = state.tasksData[taskId];
       $("#taskBody").innerHTML = `
         <section class="card">
-          <h2 class="h2">Ø¨ÙŠØ§Ù†Ø§Øª Ø³Ø±ÙŠØ¹Ø© (Ù†Ù…ÙˆØ°Ø¬ Ø¹Ø§Ù…)</h2>
+          <h2 class="h2">بيانات سريعة (نموذج عام)</h2>
           <div class="row2">
             <div>
-              <label class="lbl">Ø§Ù„ØªØ§Ø±ÙŠØ®</label>
+              <label class="lbl">التاريخ</label>
               <input class="inp" type="date" id="genDate" value="${escapeHtml(d.date || todayISO())}">
             </div>
             <div>
-              <label class="lbl">Ù…Ù„Ø§Ø­Ø¸Ø§Øª</label>
-              <input class="inp" id="genNotes" value="${escapeHtml(d.notes||"")}" placeholder="Ù…Ù„Ø§Ø­Ø¸Ø§Øª...">
+              <label class="lbl">ملاحظات</label>
+              <input class="inp" id="genNotes" value="${escapeHtml(d.notes||"")}" placeholder="ملاحظات...">
             </div>
           </div>
-          <p class="note">Ù‡Ø°Ù‡ Ø§Ù„ØµÙØ­Ø© Ø¹Ø§Ù…Ø© Ù…Ø¤Ù‚ØªÙ‹Ø§. Ø³Ù†Ø¨Ù†ÙŠ Ù„Ù‡Ø§ ÙÙˆØ±Ù… Ù…ØªØ®ØµØµ Ù„Ø§Ø­Ù‚Ù‹Ø§.</p>
+          <p class="note">هذه الصفحة عامة مؤقتًا. سنبني لها فورم متخصص لاحقًا.</p>
         </section>
       `;
       $("#genDate").addEventListener("input", ()=>{
         d.date = $("#genDate").value || todayISO();
-        setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+        setSave("تم (تلقائي)");
         saveDebounced();
       });
       $("#genNotes").addEventListener("input", debounce(()=>{
         d.notes = $("#genNotes").value || "";
-        setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+        setSave("تم (تلقائي)");
         saveDebounced();
       }, 300));
     }
@@ -195,10 +195,10 @@
       const step = d.newLevelStep || 1;
 
       const steps = [
-        {n:1, t:"Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø´Ø±ÙˆØ¹"},
-        {n:2, t:"Ø§Ù„Ù†Ù‚Ø§Ø·"},
-        {n:3, t:"Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª"},
-        {n:4, t:"ØµÙˆØ± Ø§Ù„Ù…ÙˆÙ‚Ø¹"}
+        {n:1, t:"بيانات المشروع"},
+        {n:2, t:"النقاط"},
+        {n:3, t:"الحسابات"},
+        {n:4, t:"صور الموقع"}
       ];
       $("#stepsBar").style.display = "flex";
       $("#stepsBar").innerHTML = steps.map(s => `
@@ -215,42 +215,42 @@
     }
 
     function newLevelStep1HTML(d){
-      const companies = ["", "Ø´Ø±ÙƒØ© 1", "Ø´Ø±ÙƒØ© 2", "Ø´Ø±ÙƒØ© 3"];
+      const companies = ["", "شركة 1", "شركة 2", "شركة 3"];
       const plotNos   = ["", "1", "2", "3", "4", "5"];
       return `
         <section class="card">
-          <h2 class="h2">1) Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø´Ø±ÙˆØ¹</h2>
+          <h2 class="h2">1) بيانات المشروع</h2>
 
-          <div id="errorMsg1" style="color:#ff6a6a; display:none; margin-bottom:10px;">Ø£ÙƒÙ…Ù„ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© (Ø§Ù„Ø´Ø±ÙƒØ© ÙˆØ§Ù„Ø£Ø±Ø¶)</div>
+          <div id="errorMsg1" style="color:#ff6a6a; display:none; margin-bottom:10px;">أكمل جميع البيانات المطلوبة (الشركة والأرض)</div>
 
           <div class="row2">
             <div>
-              <label class="lbl">Ø§Ù„ØªØ§Ø±ÙŠØ®</label>
+              <label class="lbl">التاريخ</label>
               <input class="inp" type="date" id="nlDate" value="${escapeHtml(d.date || todayISO())}">
             </div>
             <div>
-              <label class="lbl">Ø§Ø³Ù… Ø§Ù„Ø´Ø±ÙƒØ©</label>
+              <label class="lbl">اسم الشركة</label>
               <select id="nlCompany">
-                ${companies.map(c => `<option value="${escapeHtml(c)}" ${c===d.project.company?"selected":""}>${escapeHtml(c || "â€” Ø§Ø®ØªØ± â€”")}</option>`).join("")}
+                ${companies.map(c => `<option value="${escapeHtml(c)}" ${c===d.project.company?"selected":""}>${escapeHtml(c || "— اختر —")}</option>`).join("")}
               </select>
             </div>
           </div>
 
           <div class="row2">
             <div>
-              <label class="lbl">Ø±Ù‚Ù… Ø§Ù„Ø£Ø±Ø¶</label>
+              <label class="lbl">رقم الأرض</label>
               <select id="nlPlot">
-                ${plotNos.map(p => `<option value="${escapeHtml(p)}" ${p===d.project.plotNo?"selected":""}>${escapeHtml(p || "â€” Ø§Ø®ØªØ± â€”")}</option>`).join("")}
+                ${plotNos.map(p => `<option value="${escapeHtml(p)}" ${p===d.project.plotNo?"selected":""}>${escapeHtml(p || "— اختر —")}</option>`).join("")}
               </select>
             </div>
             <div>
-              <label class="lbl">Ø§Ù„Ù…ÙˆÙ‚Ø¹ (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label>
-              <input class="inp" id="nlSite" value="${escapeHtml(d.site||"")}" placeholder="Ù…Ø«Ø§Ù„: Ø§Ù„Ø´ÙŠØ® Ø²Ø§ÙŠØ¯ - Ù‚Ø·Ø¹Ø© ...">
+              <label class="lbl">الموقع (اختياري)</label>
+              <input class="inp" id="nlSite" value="${escapeHtml(d.site||"")}" placeholder="مثال: الشيخ زايد - قطعة ...">
             </div>
           </div>
 
           <div class="row" style="margin-top:10px">
-            <button class="btn primary" id="nlNext1">Ø§Ù„ØªØ§Ù„ÙŠ: Ø§Ù„Ù†Ù‚Ø§Ø· âž¡ï¸</button>
+            <button class="btn primary" id="nlNext1">التالي: النقاط ➡️</button>
           </div>
         </section>
       `;
@@ -260,40 +260,40 @@
       const rows = (d.points || []).map((p, i) => `
         <tr data-i="${i}">
           <td><input class="inp" data-p="name" value="${escapeHtml(p.name||"")}" placeholder="P1"></td>
-          <td><input class="inp" data-p="rl" value="${escapeHtml(p.rl??"")}" placeholder="Ù…Ø«Ø§Ù„: 12.345 (m)"></td>
+          <td><input class="inp" data-p="rl" value="${escapeHtml(p.rl??"")}" placeholder="مثال: 12.345 (m)"></td>
           <td>
             <input class="inp" type="file" accept="image/*" data-pfile="${i}">
-            ${p.photoDataUrl ? `<div class="thumbs" style="margin-top:8px"><div class="thumb"><button type="button" data-delpointimg="${i}">ðŸ—‘ï¸ Ø­Ø°Ù</button><img src="${p.photoDataUrl}" alt="point"></div></div>` : `<div class="note">ØµÙˆØ±Ø© Ø§Ø®ØªÙŠØ§Ø±ÙŠØ©</div>`}
+            ${p.photoDataUrl ? `<div class="thumbs" style="margin-top:8px"><div class="thumb"><button type="button" data-delpointimg="${i}">🗑️ حذف</button><img src="${p.photoDataUrl}" alt="point"></div></div>` : `<div class="note">صورة اختيارية</div>`}
           </td>
-          <td><button class="btn danger" type="button" data-delpoint="${i}">ðŸ—‘ï¸ Ø­Ø°Ù Ø§Ù„Ù†Ù‚Ø·Ø©</button></td>
+          <td><button class="btn danger" type="button" data-delpoint="${i}">🗑️ حذف النقطة</button></td>
         </tr>
       `).join("");
 
       return `
         <section class="card">
-          <h2 class="h2">2) Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ù†Ù‚Ø§Ø· (Ù†Ù‚Ø·ØªÙŠÙ† Ø«Ø§Ø¨ØªØªÙŠÙ†)</h2>
+          <h2 class="h2">2) جدول النقاط (نقطتين ثابتتين)</h2>
 
-          <div id="errorMsg" style="color:#ff6a6a; display:none; margin-bottom:10px;">Ø£ÙƒÙ…Ù„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù†Ù‚Ø·Ø© Ø§Ù„Ø£Ø®ÙŠØ±Ø© (Ø§Ù„Ø§Ø³Ù… ÙˆØ§Ù„Ù…Ù†Ø³ÙˆØ¨)</div>
+          <div id="errorMsg" style="color:#ff6a6a; display:none; margin-bottom:10px;">أكمل بيانات النقطة الأخيرة (الاسم والمنسوب)</div>
 
-          <div id="errorMsg2" style="color:#ff6a6a; display:none; margin-bottom:10px;">Ù„Ø§Ø²Ù… ØªØ¯Ø®Ù„ Ù†Ù‚Ø·ØªÙŠÙ† Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„ ÙˆØªÙƒÙ…Ù„ Ø§Ù„Ø§Ø³Ù… ÙˆØ§Ù„Ù…Ù†Ø³ÙˆØ¨</div>
+          <div id="errorMsg2" style="color:#ff6a6a; display:none; margin-bottom:10px;">لازم تدخل نقطتين على الأقل وتكمل الاسم والمنسوب</div>
 
-          <div class="note">ÙŠÙØ¶Ù„ Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ù…Ù†Ø§Ø³ÙŠØ¨ Ø¨Ø§Ù„Ù…ØªØ± (m). Ù…Ø«Ø§Ù„: 12.345</div>
+          <div class="note">يفضل إدخال المناسيب بالمتر (m). مثال: 12.345</div>
 
           <div style="margin-top:10px">
             <table>
               <thead>
                 <tr>
-                  <th style="text-align:right; font-family:inherit">Ø§Ø³Ù… Ø§Ù„Ù†Ù‚Ø·Ø©</th>
-                  <th style="text-align:right; font-family:inherit">Ù…Ù†Ø³ÙˆØ¨Ù‡Ø§ (RL)</th>
-                  <th style="text-align:right; font-family:inherit">ØµÙˆØ±Ø© (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</th>
-                  <th style="text-align:right; font-family:inherit">Ø¥Ø¬Ø±Ø§Ø¡</th>
+                  <th style="text-align:right; font-family:inherit">اسم النقطة</th>
+                  <th style="text-align:right; font-family:inherit">منسوبها (RL)</th>
+                  <th style="text-align:right; font-family:inherit">صورة (اختياري)</th>
+                  <th style="text-align:right; font-family:inherit">إجراء</th>
                 </tr>
               </thead>
               <tbody id="pointsBody">
-                ${rows || `<tr><td colspan="4" style="color:var(--muted); text-align:center; padding:14px; font-family:inherit">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†Ù‚Ø§Ø· Ø¨Ø¹Ø¯</td></tr>`}
+                ${rows || `<tr><td colspan="4" style="color:var(--muted); text-align:center; padding:14px; font-family:inherit">لا توجد نقاط بعد</td></tr>`}
                 <tr id="addRow">
                   <td colspan="4" style="text-align:right; padding:10px;">
-                    <button class="btn ok" type="button" id="btnAddPoint">+ Ø¥Ø¶Ø§ÙØ© Ù†Ù‚Ø·Ø©</button>
+                    <button class="btn ok" type="button" id="btnAddPoint">+ إضافة نقطة</button>
                   </td>
                 </tr>
               </tbody>
@@ -301,8 +301,8 @@
           </div>
 
           <div class="row" style="margin-top:12px">
-            <button class="btn ghost" id="nlBack2">â¬…ï¸ Ø±Ø¬ÙˆØ¹</button>
-            <button class="btn primary" id="nlNext2">Ø§Ù„ØªØ§Ù„ÙŠ: Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª âž¡ï¸</button>
+            <button class="btn ghost" id="nlBack2">⬅️ رجوع</button>
+            <button class="btn primary" id="nlNext2">التالي: الحسابات ➡️</button>
           </div>
         </section>
       `;
@@ -311,15 +311,15 @@
     // ========================= STEP 3 (UPDATED ENABLE/DISABLE FLOW + Tolerance split) =========================
     function newLevelStep3HTML(d){
       const pts = d.points || [];
-      const opts = [`<option value="">â€” Ø§Ø®ØªØ± Ù†Ù‚Ø·Ø© â€”</option>`]
-        .concat(pts.map(p => `<option value="${escapeHtml(p.name||"")}">${escapeHtml(p.name||"(Ø¨Ø¯ÙˆÙ† Ø§Ø³Ù…)")}</option>`))
+      const opts = [`<option value="">— اختر نقطة —</option>`]
+        .concat(pts.map(p => `<option value="${escapeHtml(p.name||"")}">${escapeHtml(p.name||"(بدون اسم)")}</option>`))
         .join("");
 
       const p1Chosen = d.levelCalc?.p1 || "";
-      const optsP2 = [`<option value="">â€” Ø§Ø®ØªØ± Ù†Ù‚Ø·Ø© â€”</option>`]
+      const optsP2 = [`<option value="">— اختر نقطة —</option>`]
         .concat(pts
           .filter(p => (p.name||"") !== p1Chosen)
-          .map(p => `<option value="${escapeHtml(p.name||"")}">${escapeHtml(p.name||"(Ø¨Ø¯ÙˆÙ† Ø§Ø³Ù…)")}</option>`))
+          .map(p => `<option value="${escapeHtml(p.name||"")}">${escapeHtml(p.name||"(بدون اسم)")}</option>`))
         .join("");
 
       const calc = computeLevelSurface(d);
@@ -335,7 +335,7 @@
         </div>
       ` : `
         <div class="resultBox" style="margin-top:10px; font-family:inherit">
-          Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø®Ø·Ø£
+          لا يوجد خطأ
         </div>
       `;
 
@@ -345,15 +345,15 @@
 
       return `
         <section class="card">
-          <h2 class="h2">3) Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª</h2>
+          <h2 class="h2">3) الحسابات</h2>
 
-          <div id="errorMsg3" style="color:#ff6a6a; display:none; margin-bottom:10px;">Ø£ÙƒÙ…Ù„ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© (Ø§Ù„Ù†Ù‚Ø§Ø· ÙˆØ§Ù„Ù‚Ø±Ø§Ø¡Ø§Øª ÙˆØ§Ù„ØªØ³Ø§Ù…Ø­)</div>
+          <div id="errorMsg3" style="color:#ff6a6a; display:none; margin-bottom:10px;">أكمل جميع البيانات المطلوبة (النقاط والقراءات والتسامح)</div>
 
-          <div class="note">Ù‚ÙˆØ§Ø¹Ø¯: MSM = RL(Point1) + Reading1</div>
+          <div class="note">قواعد: MSM = RL(Point1) + Reading1</div>
 
           <div class="row2">
             <div>
-              <label class="lbl">Ø§Ø®ØªØ± Ø§Ù„Ù†Ù‚Ø·Ø© 1</label>
+              <label class="lbl">اختر النقطة 1</label>
               <select id="p1Sel">${opts}</select>
             </div>
             <div>
@@ -364,7 +364,7 @@
 
           <div class="row2">
             <div>
-              <label class="lbl">Ø§Ø®ØªØ± Ø§Ù„Ù†Ù‚Ø·Ø© 2</label>
+              <label class="lbl">اختر النقطة 2</label>
               <select id="p2Sel" disabled>${optsP2}</select>
             </div>
             <div>
@@ -376,9 +376,9 @@
           <!-- Tolerance block split in 2 -->
           <div class="row2">
             <div>
-              <label class="lbl">Difference (Î”) between points</label>
+              <label class="lbl">Difference (Δ) between points</label>
               <input class="inp" id="deltaView" value="${escapeHtml(calc.t.delta)}" readonly disabled>
-              <p class="note">Shows Î” after entering readings.</p>
+              <p class="note">Shows Δ after entering readings.</p>
             </div>
             <div>
               <label class="lbl">Allowed Difference (Tolerance) (cm)</label>
@@ -388,7 +388,7 @@
 
           <div class="row" style="justify-content:space-between; margin-top:10px">
             <span class="badge ${calc.statusClass}">${calc.statusText}</span>
-            <button class="btn ok" type="button" id="btnRecalc" disabled>Ø§Ø­Ø³Ø¨</button>
+            <button class="btn ok" type="button" id="btnRecalc" disabled>احسب</button>
           </div>
 
           <!-- Operations "table" LTR -->
@@ -403,9 +403,9 @@
               <tbody>
                 <tr><td>MSM_raw = RL1 + R1</td><td>${calc.t.msm_raw}</td></tr>
                 <tr><td>RL2_measured = MSM_raw - R2</td><td>${calc.t.rl2_measured}</td></tr>
-                <tr><td>Î” = RL2_measured - RL2_base</td><td>${calc.t.delta}</td></tr>
-                <tr><td>|Î”|</td><td>${calc.t.absDelta}</td></tr>
-                <tr><td>C = -Î”/2 (if |Î”| â‰¥ Tol)</td><td>${calc.t.c}</td></tr>
+                <tr><td>Δ = RL2_measured - RL2_base</td><td>${calc.t.delta}</td></tr>
+                <tr><td>|Δ|</td><td>${calc.t.absDelta}</td></tr>
+                <tr><td>C = -Δ/2 (if |Δ| ≥ Tol)</td><td>${calc.t.c}</td></tr>
                 <tr><td>MSM_final = MSM_raw + C</td><td>${calc.t.msm_final}</td></tr>
               </tbody>
             </table>
@@ -423,11 +423,11 @@
               <input class="inp" id="gateLevel" value="${escapeHtml(d.gate.gateLevel??"")}" placeholder="e.g. 10.000">
             </div>
             <div>
-              <label class="lbl">Reading = MSM_final âˆ’ RL_target</label>
+              <label class="lbl">Reading = MSM_final − RL_target</label>
               <div class="row" style="gap:8px">
-                <input class="inp" id="gateReading" value="${escapeHtml(d.gate.reading??"")}" placeholder="â€”" readonly style="flex:1">
+                <input class="inp" id="gateReading" value="${escapeHtml(d.gate.reading??"")}" placeholder="—" readonly style="flex:1">
                 <button class="btn ghost" type="button" id="btnPlus1m">
-                  ${d.gate.plus1mEnabled ? "âˆ’1m (ON)" : "+1m"}
+                  ${d.gate.plus1mEnabled ? "−1m (ON)" : "+1m"}
                 </button>
               </div>
               <p class="note">Toggle: first click adds +1.00m to target level, second click removes it.</p>
@@ -435,8 +435,8 @@
           </div>
 
           <div class="row" style="margin-top:12px">
-            <button class="btn ghost" id="nlBack3">â¬…ï¸ Ø±Ø¬ÙˆØ¹</button>
-            <button class="btn primary" id="btnMarkDone">âœ… ØªÙ… ÙˆØ¶Ø¹ Ø§Ù„Ø¹Ù„Ø§Ù… â†’ ØµÙˆØ±</button>
+            <button class="btn ghost" id="nlBack3">⬅️ رجوع</button>
+            <button class="btn primary" id="btnMarkDone">✅ تم وضع العلام → صور</button>
           </div>
 
           <!-- Final mini report at bottom -->
@@ -452,19 +452,19 @@
     function newLevelStep4HTML(d){
       return `
         <section class="card">
-          <h2 class="h2">5) ØµÙˆØ± Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø¨Ø¹Ø¯ ÙˆØ¶Ø¹ Ø§Ù„Ø¹Ù„Ø§Ù…</h2>
+          <h2 class="h2">5) صور الموقع بعد وضع العلام</h2>
 
-          <label class="lbl">Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ØµÙˆØ±</label>
+          <label class="lbl">اختيار الصور</label>
           <input class="inp" type="file" accept="image/*" multiple id="finalPhotoInput">
 
           <div class="thumbs" id="finalThumbs"></div>
 
           <div class="row" style="margin-top:12px">
-            <button class="btn ghost" id="nlBack4">â¬…ï¸ Ø±Ø¬ÙˆØ¹</button>
-            <button class="btn ok" id="btnExportNewLevel">ðŸ“„ ØªØµØ¯ÙŠØ± JSON</button>
+            <button class="btn ghost" id="nlBack4">⬅️ رجوع</button>
+            <button class="btn ok" id="btnExportNewLevel">📄 تصدير JSON</button>
           </div>
 
-          <p class="note">Ø§Ù„ØµÙˆØ± ØªÙØ­ÙØ¸ Ù…Ø­Ù„ÙŠÙ‹Ø§ Ø¹Ù„Ù‰ Ø§Ù„Ø¬Ù‡Ø§Ø² (localStorage).</p>
+          <p class="note">الصور تُحفظ محليًا على الجهاز (localStorage).</p>
         </section>
       `;
     }
@@ -505,7 +505,7 @@
       const plus1m = d.gate.plus1mEnabled ? 1.0 : 0.0;
 
       const out = {
-        statusText: "Ù†Ø§Ù‚Øµ Ø¨ÙŠØ§Ù†Ø§Øª",
+        statusText: "ناقص بيانات",
         statusClass: "bad",
         outsideTol: false,
         t: {
@@ -533,7 +533,7 @@
 
       // Can't compute core without points+readings
       if(rl1==null || rl2base==null || r1==null || r2==null){
-        out.statusText = "Ø£ÙƒÙ…Ù„ Ø§Ù„Ø¥Ø¯Ø®Ø§Ù„ Ø¨Ø§Ù„ØªØ±ØªÙŠØ¨";
+        out.statusText = "أكمل الإدخال بالترتيب";
         out.statusClass = "bad";
         return out;
       }
@@ -550,9 +550,9 @@
       out.t.delta = fmt3(delta);
       out.t.absDelta = fmt3(absDelta);
 
-      // If tolerance missing, stop here (still show Î”)
+      // If tolerance missing, stop here (still show Δ)
       if(tolM==null){
-        out.statusText = `Ø£Ø¯Ø®Ù„ Ø§Ù„Ø³Ù…Ø§Ø­ÙŠØ© (Tolerance) â€” Î”=${delta.toFixed(3)}m`;
+        out.statusText = `أدخل السماحية (Tolerance) — Δ=${delta.toFixed(3)}m`;
         out.statusClass = "bad";
         out.t.c = "-";
         out.t.msm_final = fmt3(msm_raw);
@@ -567,11 +567,11 @@
       if(absDelta >= tolM){
         c = -(delta / 2);
         msm_final = msm_raw + c;
-        out.statusText = `ØªÙ… Ù…ØªÙˆØ³Ø· (Ø®Ø§Ø±Ø¬ Ø§Ù„Ø³Ù…Ø§Ø­ÙŠØ©) | Î”=${delta.toFixed(3)}m`;
+        out.statusText = `تم متوسط (خارج السماحية) | Δ=${delta.toFixed(3)}m`;
         out.statusClass = "bad";
         out.outsideTol = true;
       }else{
-        out.statusText = `OK Ø¯Ø§Ø®Ù„ Ø§Ù„Ø³Ù…Ø§Ø­ÙŠØ© | Î”=${delta.toFixed(3)}m`;
+        out.statusText = `OK داخل السماحية | Δ=${delta.toFixed(3)}m`;
         out.statusClass = "ok";
         out.outsideTol = false;
       }
@@ -598,7 +598,7 @@
       if(gateBase==null) return null;
 
       const plus1m = d.gate.plus1mEnabled ? 1.0 : 0.0;
-      const target = gateBase + plus1m; // âœ… target changes
+      const target = gateBase + plus1m; // ✅ target changes
 
       const calc = computeLevelSurface(d);
       const msmFinal = toNum(calc.t.msm_final);
@@ -614,22 +614,22 @@
       if(step===1){
         $("#nlDate").addEventListener("input", ()=>{
           d.date = $("#nlDate").value || todayISO();
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           saveDebounced();
         });
         $("#nlCompany").addEventListener("change", ()=>{
           d.project.company = $("#nlCompany").value || "";
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           saveDebounced();
         });
         $("#nlPlot").addEventListener("change", ()=>{
           d.project.plotNo = $("#nlPlot").value || "";
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           saveDebounced();
         });
         $("#nlSite").addEventListener("blur", ()=>{
           d.site = $("#nlSite").value || "";
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           saveDebounced();
         });
         $("#nlNext1").addEventListener("click", ()=>{
@@ -706,7 +706,7 @@
           }
           d.points.push({name:"", rl:"", photoDataUrl:""});
           renderNewLevelTask();
-          setSave("ØªÙ…");
+          setSave("تم");
           saveDebounced();
         });
 
@@ -719,7 +719,7 @@
             const key = e.target.dataset.p;
             if(!key) return;
             d.points[i][key] = e.target.value;
-            setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+            setSave("تم (تلقائي)");
             saveDebounced();
           }, true);
 
@@ -729,7 +729,7 @@
               const i = Number(del.dataset.delpoint);
               d.points.splice(i, 1);
               renderNewLevelTask();
-              setSave("ØªÙ…");
+              setSave("تم");
               saveDebounced();
               return;
             }
@@ -738,7 +738,7 @@
               const i = Number(delImg.dataset.delpointimg);
               d.points[i].photoDataUrl = "";
               renderNewLevelTask();
-              setSave("ØªÙ…");
+              setSave("تم");
               saveDebounced();
               return;
             }
@@ -755,7 +755,7 @@
             d.points[i].photoDataUrl = dataUrl;
             inp.value = "";
             renderNewLevelTask();
-            setSave("ØªÙ… (ØµÙˆØ±Ø© Ù†Ù‚Ø·Ø©)");
+            setSave("تم (صورة نقطة)");
             saveDebounced();
           });
         }
@@ -811,14 +811,14 @@
             const remaining = pts.find(p => (p.name||"") !== d.levelCalc.p1);
             if(remaining) d.levelCalc.p2 = remaining.name || "";
           }
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           renderNewLevelTask();
           saveDebounced();
         });
 
         r1Inp.addEventListener("blur", ()=>{
           d.levelCalc.bs1 = r1Inp.value || "";
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           renderNewLevelTask();
           saveDebounced();
         });
@@ -827,28 +827,28 @@
           d.levelCalc.p2 = p2Sel.value || "";
           d.levelCalc.fs2 = "";
           d.levelCalc.toleranceCm = "";
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           renderNewLevelTask();
           saveDebounced();
         });
 
         r2Inp.addEventListener("blur", ()=>{
           d.levelCalc.fs2 = r2Inp.value || "";
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           renderNewLevelTask();
           saveDebounced();
         });
 
         tolInp.addEventListener("blur", ()=>{
           d.levelCalc.toleranceCm = tolInp.value || "";
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           renderNewLevelTask();
           saveDebounced();
         });
 
         btnCalc.addEventListener("click", ()=>{
           renderNewLevelTask();
-          setSave("ØªÙ… (Ø­Ø³Ø§Ø¨)");
+          setSave("تم (حساب)");
           saveDebounced();
         });
 
@@ -858,7 +858,7 @@
           const r = computeGateReading(d);
           d.gate.reading = (r==null) ? "" : r.toFixed(3);
           $("#gateReading").value = d.gate.reading;
-          setSave("ØªÙ… (ØªÙ„Ù‚Ø§Ø¦ÙŠ)");
+          setSave("تم (تلقائي)");
           renderNewLevelTask();
           saveDebounced();
         });
@@ -872,11 +872,11 @@
 
         // +1m toggle
         $("#btnPlus1m").addEventListener("click", ()=>{
-          d.gate.plus1mEnabled = !d.gate.plus1mEnabled; // âœ… toggle
+          d.gate.plus1mEnabled = !d.gate.plus1mEnabled; // ✅ toggle
           const r = computeGateReading(d);
           d.gate.reading = (r==null) ? "" : r.toFixed(3);
           $("#gateReading").value = d.gate.reading;
-          setSave(d.gate.plus1mEnabled ? "ØªÙ… (+1m ON)" : "ØªÙ… (+1m OFF)");
+          setSave(d.gate.plus1mEnabled ? "تم (+1m ON)" : "تم (+1m OFF)");
           renderNewLevelTask();
           saveDebounced();
         });
@@ -935,7 +935,7 @@
           }
           e.target.value = "";
           renderFinalThumbs(d);
-          setSave("ØªÙ… (ØµÙˆØ±)");
+          setSave("تم (صور)");
           saveDebounced();
         });
 
@@ -945,7 +945,7 @@
           const i = Number(btn.dataset.del);
           d.photos.splice(i, 1);
           renderFinalThumbs(d);
-          setSave("ØªÙ… (Ø­Ø°Ù ØµÙˆØ±Ø©)");
+          setSave("تم (حذف صورة)");
           saveDebounced();
         });
 
@@ -955,7 +955,7 @@
           const plus1m = d.gate.plus1mEnabled ? 1.0 : 0.0;
           const payload = {
             taskId: "new-level",
-            taskTitle: "Ø¹Ù„Ø§Ù… Ø¬ÙŠØª Ù„ÙÙ„ Ø¬Ø¯ÙŠØ¯",
+            taskTitle: "علام جيت لفل جديد",
             project: d.project,
             date: d.date,
             site: d.site || "",
@@ -983,7 +983,7 @@
             photos: d.photos
           };
           download(`new-level-${d.date||todayISO()}.json`, JSON.stringify(payload, null, 2));
-          setSave("ØªÙ… (ØªØµØ¯ÙŠØ±)");
+          setSave("تم (تصدير)");
           saveDebounced();
         });
       }
@@ -992,16 +992,16 @@
     function renderFinalThumbs(d){
       $("#finalThumbs").innerHTML = (d.photos||[]).map((p, i)=>`
         <div class="thumb">
-          <button type="button" data-del="${i}">Ø­Ø°Ù</button>
+          <button type="button" data-del="${i}">حذف</button>
           <img src="${p.dataUrl}" alt="${escapeHtml(p.name)}">
         </div>
-      `).join("") || `<div class="note">Ù„Ø§ ØªÙˆØ¬Ø¯ ØµÙˆØ± Ø¨Ø¹Ø¯</div>`;
+      `).join("") || `<div class="note">لا توجد صور بعد</div>`;
     }
 
     function loadTheme(){
       const theme = localStorage.getItem("theme") || "dark";
       document.body.classList.toggle("light-mode", theme === "light");
-      $("#themeToggle").textContent = theme === "light" ? "ðŸŒ™" : "â˜€ï¸";
+      $("#themeToggle").textContent = theme === "light" ? "🌙" : "☀️";
     }
 
     function toggleTheme(){
@@ -1009,7 +1009,7 @@
       const newTheme = isLight ? "dark" : "light";
       localStorage.setItem("theme", newTheme);
       document.body.classList.toggle("light-mode", !isLight);
-      $("#themeToggle").textContent = newTheme === "light" ? "ðŸŒ™" : "â˜€ï¸";
+      $("#themeToggle").textContent = newTheme === "light" ? "🌙" : "☀️";
     }
 
     function wireGlobalEvents(){
@@ -1023,10 +1023,10 @@
       $("#btnResetTask").addEventListener("click", ()=>{
         const id = state.activeTaskId;
         if(!id || !state.tasksData[id]) {
-          alert("Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¨ÙŠØ§Ù†Ø§Øª Ù„Ù…Ø³Ø­Ù‡Ø§");
+          alert("لا توجد بيانات لمسحها");
           return;
         }
-        if(!confirm("Ù…Ø³Ø­ ÙƒÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ù‡Ø°Ø§ Ø§Ù„Ø¨Ù†Ø¯ØŸ Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡ Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ±Ø§Ø¬Ø¹ Ø¹Ù†Ù‡.")) return;
+        if(!confirm("مسح كل بيانات هذا البند؟ هذا الإجراء لا يمكن التراجع عنه.")) return;
         delete state.tasksData[id];
         save();
         showHome();
