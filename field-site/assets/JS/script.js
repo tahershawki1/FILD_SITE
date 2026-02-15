@@ -40,21 +40,14 @@
     function setSave(){ }
 
     function load(){
-      const raw = localStorage.getItem(STORE_KEY);
-      if(!raw) return;
-      try{ Object.assign(state, JSON.parse(raw)); }
-      catch(e){ console.warn("Bad saved state", e); }
+      // Always start with a clean state on full page reload.
+      // Theme preference is handled separately.
+      try { localStorage.removeItem(STORE_KEY); } catch (_) {}
+      state.activeTaskId = null;
+      state.tasksData = {};
     }
-    function save(){
-      try{
-        localStorage.setItem(STORE_KEY, JSON.stringify(state));
-        setSave("تم");
-      }catch(e){
-        console.error(e);
-        setSave("فشل", false);
-      }
-    }
-    const saveDebounced = debounce(save, 350);
+    function save(){ }
+    const saveDebounced = ()=>{};
 
     function fileToDataUrl(file){
       return new Promise((resolve, reject)=>{
@@ -464,7 +457,7 @@
             <button class="btn ok" id="btnExportNewLevel">📄 تصدير JSON</button>
           </div>
 
-          <p class="note">الصور تُحفظ محليًا على الجهاز (localStorage).</p>
+          <p class="note">الصور والبيانات تحفظ مؤقتًا خلال الجلسة الحالية فقط حتى التصدير.</p>
         </section>
       `;
     }
@@ -1043,4 +1036,3 @@
       else showHome();
       saveDebounced();
     })();
-

@@ -382,6 +382,11 @@ function renderLoginPage(url) {
       <div class="hint">نسخة محمية للاستخدام الداخلي</div>
     </section>
   </main>
+  <script>
+    if (window.location.search) {
+      history.replaceState(null, "", window.location.pathname);
+    }
+  </script>
 </body>
 </html>`;
 
@@ -431,6 +436,11 @@ function renderAdminLoginPage(url) {
     </form>
     <div class="back"><a href="/login">Back to app login</a></div>
   </main>
+  <script>
+    if (window.location.search) {
+      history.replaceState(null, "", window.location.pathname);
+    }
+  </script>
 </body>
 </html>`;
 
@@ -549,6 +559,11 @@ function renderAdminPage({ adminUsername, usersArray, mode, message, error }) {
       </section>
     </div>
   </div>
+  <script>
+    if (window.location.search) {
+      history.replaceState(null, "", window.location.pathname);
+    }
+  </script>
 </body>
 </html>`;
 
