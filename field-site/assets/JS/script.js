@@ -37,7 +37,19 @@
     function debounce(fn, ms){
       let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
     }
-    function setSave(){ }
+    function setSave(msg){
+      let el = $("#saveToast");
+      if(!el){
+        el = document.createElement("div");
+        el.id = "saveToast";
+        el.style.cssText = "position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--surface-2);color:var(--success);border:1px solid var(--line);border-radius:12px;padding:6px 14px;font-size:12px;font-weight:700;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;font-family:var(--font-main);";
+        document.body.appendChild(el);
+      }
+      el.textContent = "💾 " + String(msg || "تم");
+      el.style.opacity = "1";
+      clearTimeout(el._tid);
+      el._tid = setTimeout(()=>{ el.style.opacity = "0"; }, 1800);
+    }
 
     function load(){
       const raw = localStorage.getItem(STORE_KEY);
@@ -138,6 +150,12 @@
       $("#topSub").textContent = "اختر بند الشغل — كل بند له بيانات وصور";
       $("#stepsBar").style.display = "none";
       renderHomeCards(); // ✅ Re-render cards after data changes
+
+      // Show grid footer when all tasks have data
+      const allDone = TASKS.every(t => state.tasksData[t.id]);
+      const footer = $("#gridFooter");
+      if(footer) footer.style.display = allDone ? "block" : "none";
+
       setSave("جاهز");
       saveDebounced();
     }
@@ -697,7 +715,7 @@
             return;
           }
           for(let i = 0; i < points.length; i++){
-            if(!points[i].name.trim() || !points[i].rl.trim()){
+            if(!String(points[i].name || "").trim() || !String(points[i].rl ?? "").trim()){
               $("#errorMsg2").style.display = "block";
               const row = $("#pointsBody").querySelector(`tr[data-i='${i}']`);
               if(row){
@@ -718,7 +736,7 @@
           const points = d.points || [];
           if(points.length > 0){
             const last = points[points.length - 1];
-            if(!last.name.trim() || !last.rl.trim()){
+            if(!String(last.name || "").trim() || !String(last.rl ?? "").trim()){
               // Show error on the last point
               $("#errorMsg").style.display = "block";
               const lastRow = $("#pointsBody").querySelector(`tr[data-i='${points.length - 1}']`);

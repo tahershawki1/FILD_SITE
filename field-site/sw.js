@@ -26,11 +26,7 @@ function isAuthOrSessionPath(pathname) {
 
 function hasNoStore(response) {
   const cacheControl = String(response.headers.get("Cache-Control") || "").toLowerCase();
-  return (
-    cacheControl.includes("no-store") ||
-    cacheControl.includes("no-cache") ||
-    cacheControl.includes("private")
-  );
+  return cacheControl.includes("no-store");
 }
 
 function shouldCacheResponse(request, response) {

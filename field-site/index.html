@@ -1,16 +1,19 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>الموقع الميداني - إدارة المشاريع الميدانية</title>
-  <meta name="theme-color" content="#63a5ff">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Field Site">
-  <link rel="manifest" href="./manifest.json">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>الموقع الميداني - إدارة المشاريع الميدانية</title>
+    <meta name="theme-color" content="#63a5ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Field Site" />
+    <link rel="manifest" href="./manifest.json" />
 
-  <!--
+    <!--
     ========================= MAIN PROJECT COMMENT =========================
     ⚠️ WARNING FOR ANY AGENT / DEVELOPER (DO NOT DELETE) ⚠️
     - ممنوع حذف أي بلوك تعليق عليه "MAIN PROJECT COMMENT" في المشروع بالكامل.
@@ -19,7 +22,7 @@
     =======================================================================
   -->
 
-  <!--
+    <!--
     ========================= PAGE MAP (DO NOT DELETE) ======================
     Virtual pages inside ONE file:
       1) HOME_PAGE  : Cards list (project work items)  -> #viewHome
@@ -35,11 +38,11 @@
     =======================================================================
   -->
 
-  <link rel="stylesheet" href="./assets/css/style.css">
-</head>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+  </head>
 
-<body>
-  <!--
+  <body>
+    <!--
     ========================= MAIN PROJECT COMMENT =========================
     ⚠️ DO NOT DELETE MAIN COMMENTS ⚠️
     - Body contains HOME_PAGE and TASK_PAGE in one file.
@@ -47,83 +50,99 @@
     =======================================================================
   -->
 
-  <header class="premium-header">
-    <div class="wrap">
-      <div class="headRow">
-        <div class="header-brand">
-          <div class="logo-icon">
-            <img src="./assets/icons/brand-logo.png" alt="Field Site Logo" class="brand-logo-img">
+    <header class="premium-header">
+      <div class="wrap">
+        <div class="headRow">
+          <div class="header-brand">
+            <div class="logo-icon">
+              <img
+                src="./assets/icons/brand-logo.png"
+                alt="Field Site Logo"
+                class="brand-logo-img"
+              />
+            </div>
+            <div style="min-width: 0">
+              <h1 class="h1" id="topTitle">الموقع الميداني</h1>
+              <p class="sub" id="topSub">
+                إدارة بنود العمل والبيانات الميدانية مع الصور
+              </p>
+            </div>
           </div>
-          <div style="min-width:0">
-            <h1 class="h1" id="topTitle">الموقع الميداني</h1>
-            <p class="sub" id="topSub">إدارة بنود العمل والبيانات الميدانية مع الصور</p>
+          <div class="headActions">
+            <button id="themeToggle" class="btn-icon" title="تبديل المظهر">
+              ☀️
+            </button>
+            <a
+              href="/logout"
+              class="btn-icon logout-btn"
+              title="تسجيل الخروج"
+              aria-label="تسجيل الخروج"
+              >⎋</a
+            >
           </div>
-        </div>
-        <div class="headActions">
-          <button id="themeToggle" class="btn-icon" title="تبديل المظهر">☀️</button>
-          <a href="/logout" class="btn-icon logout-btn" title="تسجيل الخروج" aria-label="تسجيل الخروج">⎋</a>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <div id="updateBanner" class="premium-banner" hidden>
-    <div class="banner-content">
-      <div class="banner-icon">⬇️</div>
-      <div>
-        <p class="banner-title">نسخة جديدة متاحة</p>
-        <span id="updateText" class="banner-desc">تحديث التطبيق للحصول على أحدث الميزات</span>
+    <div id="updateBanner" class="premium-banner" hidden>
+      <div class="banner-content">
+        <div class="banner-icon">⬇️</div>
+        <div>
+          <p class="banner-title">نسخة جديدة متاحة</p>
+          <span id="updateText" class="banner-desc"
+            >تحديث التطبيق للحصول على أحدث الميزات</span
+          >
+        </div>
+      </div>
+      <div class="updateActions">
+        <button id="btnUpdateNow" class="btn primary-small">تحديث</button>
+        <button id="btnLater" class="btn-text">لاحقًا</button>
       </div>
     </div>
-    <div class="updateActions">
-      <button id="btnUpdateNow" class="btn primary-small">تحديث</button>
-      <button id="btnLater" class="btn-text">لاحقًا</button>
-    </div>
-  </div>
 
-  <main class="content-wrapper">
-    <div class="wrap safePad">
-
-      <!-- ========================= PAGE: HOME_PAGE ========================= -->
-      <section class="view active" id="viewHome">
-        <div class="home-intro">
-          <p class="intro-text">اختر بند من الأبناد أدناه لبدء إدخال البيانات والصور</p>
-        </div>
-        <section class="cards-grid" id="cards"></section>
-        <div class="grid-footer" id="gridFooter" style="display:none;">
-          <p class="completion-text">📊 اكتملت جميع البنود بنجاح!</p>
-        </div>
-      </section>
-
-      <!-- ========================= PAGE: TASK_PAGE ========================= -->
-      <section class="view" id="viewTask">
-        <div class="task-header">
-          <button class="btn-back" id="btnBack">
-            <span class="back-icon">⬅️</span>
-            العودة
-          </button>
-          <button class="btn-reset" id="btnResetTask">
-            <span class="reset-icon">🗑️</span>
-            إعادة تعيين
-          </button>
-        </div>
-
-        <section class="task-card">
-          <div class="task-title-section">
-            <h2 class="h2" id="taskTitle">—</h2>
-            <p class="sub" id="taskDesc">—</p>
+    <main class="content-wrapper">
+      <div class="wrap safePad">
+        <!-- ========================= PAGE: HOME_PAGE ========================= -->
+        <section class="view active" id="viewHome">
+          <div class="home-intro">
+            <p class="intro-text">
+              اختر بند من البنود أدناه لبدء إدخال البيانات والصور
+            </p>
           </div>
-          <div class="steps" id="stepsBar" style="display:none"></div>
+          <section class="cards-grid" id="cards"></section>
+          <div class="grid-footer" id="gridFooter">
+            <p class="completion-text">📊 اكتملت جميع البنود بنجاح!</p>
+          </div>
         </section>
 
-        <div id="taskBody" class="task-body-container"></div>
-      </section>
+        <!-- ========================= PAGE: TASK_PAGE ========================= -->
+        <section class="view" id="viewTask">
+          <div class="task-header">
+            <button class="btn-back" id="btnBack">
+              <span class="back-icon">⬅️</span>
+              العودة
+            </button>
+            <button class="btn-reset" id="btnResetTask">
+              <span class="reset-icon">🗑️</span>
+              إعادة تعيين
+            </button>
+          </div>
 
-    </div>
-  </main>
+          <section class="task-card">
+            <div class="task-title-section">
+              <h2 class="h2" id="taskTitle">—</h2>
+              <p class="sub" id="taskDesc">—</p>
+            </div>
+            <div class="steps" id="stepsBar" style="display: none"></div>
+          </section>
 
-  <!-- Scripts -->
-  <script src="./assets/JS/script.js" defer></script>
-  <script src="./assets/JS/pwa-update.js" defer></script>
-</body>
+          <div id="taskBody" class="task-body-container"></div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="./assets/JS/script.js" defer></script>
+    <script src="./assets/JS/pwa-update.js" defer></script>
+  </body>
 </html>

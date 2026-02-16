@@ -16,9 +16,9 @@ const CSP_POLICY = [
   "frame-ancestors 'none'",
   "object-src 'none'",
   "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: blob:",
-  "font-src 'self' data:",
+  "font-src 'self' data: https://fonts.gstatic.com",
   "connect-src 'self'",
   "worker-src 'self'",
   "manifest-src 'self'",
@@ -69,7 +69,7 @@ export default {
       request,
       env,
       APP_SESSION_COOKIE,
-      "app"
+      "app",
     );
 
     if (!session.ok) {
@@ -79,7 +79,7 @@ export default {
     const assetResponse = await env.ASSETS.fetch(request);
     const safeAssetResponse = applyNoStoreAndSecurityToHtmlResponse(
       assetResponse,
-      request
+      request,
     );
     if (!session.isAdmin) {
       return safeAssetResponse;
@@ -144,7 +144,7 @@ async function handleAppLogin(request, env) {
       adm: isAdminCredentials,
       exp: Date.now() + SESSION_TTL_SECONDS * 1000,
     },
-    env
+    env,
   );
 
   const headers = new Headers({
@@ -153,7 +153,7 @@ async function handleAppLogin(request, env) {
   });
   headers.append(
     "Set-Cookie",
-    buildSessionCookie(APP_SESSION_COOKIE, token, SESSION_TTL_SECONDS)
+    buildSessionCookie(APP_SESSION_COOKIE, token, SESSION_TTL_SECONDS),
   );
   if (!isAdminCredentials) {
     headers.append("Set-Cookie", clearSessionCookie(ADMIN_SESSION_COOKIE));
@@ -216,7 +216,7 @@ async function handleAdminLogin(request, env) {
       u: username,
       exp: Date.now() + SESSION_TTL_SECONDS * 1000,
     },
-    env
+    env,
   );
 
   const headers = new Headers({
@@ -225,7 +225,7 @@ async function handleAdminLogin(request, env) {
   });
   headers.append(
     "Set-Cookie",
-    buildSessionCookie(ADMIN_SESSION_COOKIE, token, SESSION_TTL_SECONDS)
+    buildSessionCookie(ADMIN_SESSION_COOKIE, token, SESSION_TTL_SECONDS),
   );
   const appToken = await createSessionToken(
     {
@@ -234,11 +234,11 @@ async function handleAdminLogin(request, env) {
       adm: true,
       exp: Date.now() + SESSION_TTL_SECONDS * 1000,
     },
-    env
+    env,
   );
   headers.append(
     "Set-Cookie",
-    buildSessionCookie(APP_SESSION_COOKIE, appToken, SESSION_TTL_SECONDS)
+    buildSessionCookie(APP_SESSION_COOKIE, appToken, SESSION_TTL_SECONDS),
   );
 
   return new Response(null, { status: 302, headers });
@@ -263,7 +263,7 @@ async function handleAdminPage(request, env, url) {
 
   const users = await loadUsers(env);
   const usersArray = [...users.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0])
+    a[0].localeCompare(b[0]),
   );
 
   const mode = hasUsersKv(env) ? "read-write" : "read-only";
@@ -310,16 +310,19 @@ async function handleAdminAddUser(request, env) {
 
   if (!isValidUsername(username)) {
     return redirect(
-      "/admin?error=Invalid%20username.%20Use%203-32%20chars:%20a-z%20A-Z%200-9%20._-"
+      "/admin?error=Invalid%20username.%20Use%203-32%20chars:%20a-z%20A-Z%200-9%20._-",
     );
   }
 
   if (!isValidPassword(password)) {
-    return redirect("/admin?error=Password%20must%20be%20at%20least%206%20chars");
+    return redirect(
+      "/admin?error=Password%20must%20be%20at%20least%206%20chars",
+    );
   }
 
   const users = await loadUsers(env);
-  users.set(username, password);
+  const hashedCredential = await createHashedCredential(password);
+  users.set(username, hashedCredential);
   await saveUsers(users, env);
 
   return redirect(`/admin?msg=${encodeURIComponent(`User ${username} saved`)}`);
@@ -356,13 +359,17 @@ async function handleAdminDeleteUser(request, env) {
 
   const users = await loadUsers(env);
   if (!users.has(username)) {
-    return redirect(`/admin?error=${encodeURIComponent(`User ${username} not found`)}`);
+    return redirect(
+      `/admin?error=${encodeURIComponent(`User ${username} not found`)}`,
+    );
   }
 
   users.delete(username);
   await saveUsers(users, env);
 
-  return redirect(`/admin?msg=${encodeURIComponent(`User ${username} deleted`)}`);
+  return redirect(
+    `/admin?msg=${encodeURIComponent(`User ${username} deleted`)}`,
+  );
 }
 
 async function handleAdminUpdateUser(request, env) {
@@ -399,35 +406,38 @@ async function handleAdminUpdateUser(request, env) {
 
   if (!isValidUsername(newUsername)) {
     return redirect(
-      "/admin?error=Invalid%20new%20username.%20Use%203-32%20chars:%20a-z%20A-Z%200-9%20._-"
+      "/admin?error=Invalid%20new%20username.%20Use%203-32%20chars:%20a-z%20A-Z%200-9%20._-",
     );
   }
 
   if (!isValidPassword(newPassword)) {
-    return redirect("/admin?error=New%20password%20must%20be%20at%20least%206%20chars");
+    return redirect(
+      "/admin?error=New%20password%20must%20be%20at%20least%206%20chars",
+    );
   }
 
   const users = await loadUsers(env);
   if (!users.has(currentUsername)) {
     return redirect(
-      `/admin?error=${encodeURIComponent(`User ${currentUsername} not found`)}`
+      `/admin?error=${encodeURIComponent(`User ${currentUsername} not found`)}`,
     );
   }
 
   if (currentUsername !== newUsername && users.has(newUsername)) {
     return redirect(
-      `/admin?error=${encodeURIComponent(`User ${newUsername} already exists`)}`
+      `/admin?error=${encodeURIComponent(`User ${newUsername} already exists`)}`,
     );
   }
 
   users.delete(currentUsername);
-  users.set(newUsername, newPassword);
+  const hashedCredential = await createHashedCredential(newPassword);
+  users.set(newUsername, hashedCredential);
   await saveUsers(users, env);
 
   return redirect(
     `/admin?msg=${encodeURIComponent(
-      `User ${currentUsername} updated to ${newUsername}`
-    )}`
+      `User ${currentUsername} updated to ${newUsername}`,
+    )}`,
   );
 }
 
@@ -508,7 +518,8 @@ async function renderAdminLoginPage(url, env) {
     errorHtml =
       '<p class="error">Too many failed attempts. Please wait 15 minutes.</p>';
   } else if (errorCode === "3") {
-    errorHtml = '<p class="error">Invalid security token. Reload and try again.</p>';
+    errorHtml =
+      '<p class="error">Invalid security token. Reload and try again.</p>';
   } else if (errorCode === "4") {
     errorHtml =
       '<p class="error">Admin credentials are not configured (ADMIN_USERNAME/ADMIN_PASSWORD).</p>';
@@ -583,7 +594,7 @@ function renderAdminPage({
       <button type="submit" class="btn danger" ${readonly ? "disabled" : ""}>Delete</button>
     </form>
   </td>
-</tr>`
+</tr>`,
         )
         .join("")
     : '<tr><td colspan="2">No users found.</td></tr>';
@@ -591,7 +602,9 @@ function renderAdminPage({
   const messageHtml = message
     ? `<p class="alert ok">${escapeHtml(message)}</p>`
     : "";
-  const errorHtml = error ? `<p class="alert err">${escapeHtml(error)}</p>` : "";
+  const errorHtml = error
+    ? `<p class="alert err">${escapeHtml(error)}</p>`
+    : "";
 
   const readonlyHtml = readonly
     ? '<p class="alert warn">USERS_KV binding is missing. Add/Delete is disabled. Login still works from BASIC_AUTH_USERS.</p>'
@@ -792,7 +805,7 @@ async function requireAdminAccess(request, env) {
     request,
     env,
     ADMIN_SESSION_COOKIE,
-    "admin"
+    "admin",
   );
   if (adminSession.ok) {
     return { ok: true, username: adminSession.username };
@@ -802,7 +815,7 @@ async function requireAdminAccess(request, env) {
     request,
     env,
     APP_SESSION_COOKIE,
-    "app"
+    "app",
   );
   if (appSession.ok) {
     if (appSession.isAdmin) {
@@ -823,7 +836,7 @@ async function injectAdminShortcut(request, response) {
 
   const body = await response.text();
   if (!body.includes("</body>")) return response;
-  if (body.includes("id=\"adminShortcutBtn\"")) return response;
+  if (body.includes('id="adminShortcutBtn"')) return response;
 
   const shortcut = `<a id="adminShortcutBtn" href="/admin" class="btn-icon" title="لوحة الإدارة" aria-label="لوحة الإدارة">⚙️</a>`;
   const marker = '<div class="headActions">';
@@ -887,7 +900,9 @@ function applyNoStoreAndSecurityToHtmlResponse(response, request) {
 }
 
 async function createSessionToken(payloadObj, env) {
-  const payload = toBase64Url(new TextEncoder().encode(JSON.stringify(payloadObj)));
+  const payload = toBase64Url(
+    new TextEncoder().encode(JSON.stringify(payloadObj)),
+  );
   const signature = await sign(payload, env);
   return `${payload}.${signature}`;
 }
@@ -917,13 +932,13 @@ async function sign(data, env) {
     new TextEncoder().encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   const signature = await crypto.subtle.sign(
     "HMAC",
     key,
-    new TextEncoder().encode(data)
+    new TextEncoder().encode(data),
   );
 
   return toBase64Url(new Uint8Array(signature));
@@ -968,7 +983,7 @@ async function pbkdf2Hash(password, saltBytes, iterations) {
     new TextEncoder().encode(password),
     "PBKDF2",
     false,
-    ["deriveBits"]
+    ["deriveBits"],
   );
   const bits = await crypto.subtle.deriveBits(
     {
@@ -978,7 +993,7 @@ async function pbkdf2Hash(password, saltBytes, iterations) {
       iterations,
     },
     passwordKey,
-    256
+    256,
   );
   return toBase64Url(new Uint8Array(bits));
 }
@@ -990,8 +1005,8 @@ async function createCsrfToken(env, formScope) {
         f: formScope,
         t: Date.now(),
         n: randomHex(16),
-      })
-    )
+      }),
+    ),
   );
   const signature = await sign(`csrf:${payload}`, env);
   return `${payload}.${signature}`;
@@ -1028,7 +1043,10 @@ async function getRateLimitState(request, env, scope) {
 
   try {
     const data = JSON.parse(raw);
-    if (typeof data.count !== "number" || typeof data.blockedUntil !== "number") {
+    if (
+      typeof data.count !== "number" ||
+      typeof data.blockedUntil !== "number"
+    ) {
       return { blocked: false, count: 0 };
     }
 
@@ -1083,8 +1101,14 @@ function addSecurityHeaders(headers, request, isHtml) {
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Frame-Options", "DENY");
   headers.set("Referrer-Policy", "same-origin");
-  headers.set("Permissions-Policy", "geolocation=(), camera=(), microphone=()");
-  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  headers.set(
+    "Permissions-Policy",
+    "geolocation=(), camera=(self), microphone=()",
+  );
+  headers.set(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains",
+  );
   if (isHtml) {
     headers.set("Content-Security-Policy", CSP_POLICY);
   }
@@ -1096,7 +1120,7 @@ function addSecurityHeaders(headers, request, isHtml) {
 function appendVary(existing, token) {
   const parts = String(existing || "")
     .split(",")
-    .map(v => v.trim())
+    .map((v) => v.trim())
     .filter(Boolean);
   if (!parts.includes(token)) parts.push(token);
   return parts.join(", ");
@@ -1105,7 +1129,7 @@ function appendVary(existing, token) {
 function randomHex(bytesLength) {
   const bytes = new Uint8Array(bytesLength);
   crypto.getRandomValues(bytes);
-  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 function requireSigningSecret(env) {
@@ -1218,11 +1242,13 @@ function stripQuotes(value) {
 }
 
 function safeEqual(a, b) {
-  if (a.length !== b.length) return false;
+  const len = Math.max(a.length, b.length);
+  const paddedA = a.padEnd(len, "\0");
+  const paddedB = b.padEnd(len, "\0");
 
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) {
-    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < len; i++) {
+    diff |= paddedA.charCodeAt(i) ^ paddedB.charCodeAt(i);
   }
 
   return diff === 0;
@@ -1241,12 +1267,16 @@ function toBase64Url(bytes) {
     binary += String.fromCharCode(bytes[i]);
   }
 
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
 }
 
 function fromBase64Url(value) {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
-  const padding = normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4));
+  const padding =
+    normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4));
 
   const binary = atob(normalized + padding);
   const bytes = new Uint8Array(binary.length);
