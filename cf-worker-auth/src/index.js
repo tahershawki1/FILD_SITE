@@ -2,13 +2,35 @@
 const ADMIN_SESSION_COOKIE = "field_site_admin_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24;
 const USERS_KV_KEY = "users_v1";
+const AUTH_RATE_PREFIX = "rl";
+const CSRF_TTL_SECONDS = 60 * 30;
+const LOGIN_MAX_ATTEMPTS = 5;
+const LOGIN_BLOCK_SECONDS = 60 * 15;
+const PASSWORD_HASH_ALG = "pbkdf2-sha256";
+const PASSWORD_HASH_ITERATIONS = 210000;
+const PASSWORD_SCHEMA_VERSION = 1;
+const CSP_POLICY = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
     if (url.pathname === "/login") {
-      if (request.method === "GET") return renderLoginPage(url);
+      if (request.method === "GET") return renderLoginPage(url, env);
       if (request.method === "POST") return handleAppLogin(request, env);
       return methodNotAllowed();
     }
@@ -18,7 +40,7 @@ export default {
     }
 
     if (url.pathname === "/admin/login") {
-      if (request.method === "GET") return renderAdminLoginPage(url);
+      if (request.method === "GET") return renderAdminLoginPage(url, env);
       if (request.method === "POST") return handleAdminLogin(request, env);
       return methodNotAllowed();
     }
@@ -55,7 +77,10 @@ export default {
     }
 
     const assetResponse = await env.ASSETS.fetch(request);
-    const safeAssetResponse = applyNoStoreToHtmlResponse(assetResponse);
+    const safeAssetResponse = applyNoStoreAndSecurityToHtmlResponse(
+      assetResponse,
+      request
+    );
     if (!session.isAdmin) {
       return safeAssetResponse;
     }
@@ -75,19 +100,42 @@ async function handleAppLogin(request, env) {
   const username = String(form.get("username") || "").trim();
   const password = String(form.get("password") || "");
   const next = sanitizeNext(String(form.get("next") || "/"));
+  const csrfToken = String(form.get("_csrf") || "");
+
+  const csrfValid = await verifyCsrfToken(csrfToken, env, "app-login");
+  if (!csrfValid) {
+    return redirect(`/login?error=3&next=${encodeURIComponent(next)}`);
+  }
+
+  const appRateLimit = await getRateLimitState(request, env, "app");
+  if (appRateLimit.blocked) {
+    return redirect(`/login?error=2&next=${encodeURIComponent(next)}`);
+  }
 
   const users = await loadUsers(env);
-  const expectedPassword = users.get(username);
-  const adminUser = (env.ADMIN_USERNAME || "admin").trim();
-  const adminPassword = (env.ADMIN_PASSWORD || "").trim();
+  const userAuth = await verifyUserCredentials(users, username, password);
+  const adminConfig = getAdminCredentials(env);
   const isAdminCredentials =
-    !!adminPassword &&
-    safeEqual(username, adminUser) &&
-    safeEqual(password, adminPassword);
+    adminConfig.configured &&
+    safeEqual(username, adminConfig.username) &&
+    safeEqual(password, adminConfig.password);
 
-  if ((!expectedPassword || !safeEqual(password, expectedPassword)) && !isAdminCredentials) {
+  if (!userAuth.ok && !isAdminCredentials) {
+    await registerFailedLoginAttempt(request, env, "app");
     return redirect(`/login?error=1&next=${encodeURIComponent(next)}`);
   }
+
+  if (userAuth.ok && userAuth.needsUpgrade && hasUsersKv(env)) {
+    try {
+      const upgradedCredential = await createHashedCredential(password);
+      users.set(username, upgradedCredential);
+      await saveUsers(users, env);
+    } catch (err) {
+      console.warn("Legacy password upgrade skipped:", err?.message || err);
+    }
+  }
+
+  await clearFailedLoginAttempts(request, env, "app");
 
   const token = await createSessionToken(
     {
@@ -135,17 +183,32 @@ async function handleAdminLogin(request, env) {
 
   const username = String(form.get("username") || "").trim();
   const password = String(form.get("password") || "");
+  const csrfToken = String(form.get("_csrf") || "");
 
-  const adminUser = (env.ADMIN_USERNAME || "admin").trim();
-  const adminPassword = (env.ADMIN_PASSWORD || "").trim();
+  const csrfValid = await verifyCsrfToken(csrfToken, env, "admin-login");
+  if (!csrfValid) {
+    return redirect("/admin/login?error=3");
+  }
 
-  if (!adminPassword) {
+  const adminRateLimit = await getRateLimitState(request, env, "admin");
+  if (adminRateLimit.blocked) {
     return redirect("/admin/login?error=2");
   }
 
-  if (!safeEqual(username, adminUser) || !safeEqual(password, adminPassword)) {
+  const adminConfig = getAdminCredentials(env);
+  if (!adminConfig.configured) {
+    return redirect("/admin/login?error=4");
+  }
+
+  if (
+    !safeEqual(username, adminConfig.username) ||
+    !safeEqual(password, adminConfig.password)
+  ) {
+    await registerFailedLoginAttempt(request, env, "admin");
     return redirect("/admin/login?error=1");
   }
+
+  await clearFailedLoginAttempts(request, env, "admin");
 
   const token = await createSessionToken(
     {
@@ -164,6 +227,19 @@ async function handleAdminLogin(request, env) {
     "Set-Cookie",
     buildSessionCookie(ADMIN_SESSION_COOKIE, token, SESSION_TTL_SECONDS)
   );
+  const appToken = await createSessionToken(
+    {
+      typ: "app",
+      u: username,
+      adm: true,
+      exp: Date.now() + SESSION_TTL_SECONDS * 1000,
+    },
+    env
+  );
+  headers.append(
+    "Set-Cookie",
+    buildSessionCookie(APP_SESSION_COOKIE, appToken, SESSION_TTL_SECONDS)
+  );
 
   return new Response(null, { status: 302, headers });
 }
@@ -174,6 +250,7 @@ function handleAdminLogout() {
     "Cache-Control": "no-store",
   });
   headers.append("Set-Cookie", clearSessionCookie(ADMIN_SESSION_COOKIE));
+  headers.append("Set-Cookie", clearSessionCookie(APP_SESSION_COOKIE));
 
   return new Response(null, { status: 302, headers });
 }
@@ -192,6 +269,7 @@ async function handleAdminPage(request, env, url) {
   const mode = hasUsersKv(env) ? "read-write" : "read-only";
   const message = String(url.searchParams.get("msg") || "");
   const error = String(url.searchParams.get("error") || "");
+  const csrfToken = await createCsrfToken(env, "admin-users");
 
   return renderAdminPage({
     adminUsername: adminAccess.username,
@@ -199,6 +277,7 @@ async function handleAdminPage(request, env, url) {
     mode,
     message,
     error,
+    csrfToken,
   });
 }
 
@@ -219,6 +298,11 @@ async function handleAdminAddUser(request, env) {
     form = await request.formData();
   } catch {
     return redirect("/admin?error=Invalid%20form%20data");
+  }
+  const csrfToken = String(form.get("_csrf") || "");
+  const csrfValid = await verifyCsrfToken(csrfToken, env, "admin-users");
+  if (!csrfValid) {
+    return redirect("/admin?error=Invalid%20security%20token");
   }
 
   const username = String(form.get("username") || "").trim();
@@ -259,6 +343,11 @@ async function handleAdminDeleteUser(request, env) {
   } catch {
     return redirect("/admin?error=Invalid%20form%20data");
   }
+  const csrfToken = String(form.get("_csrf") || "");
+  const csrfValid = await verifyCsrfToken(csrfToken, env, "admin-users");
+  if (!csrfValid) {
+    return redirect("/admin?error=Invalid%20security%20token");
+  }
 
   const username = String(form.get("username") || "").trim();
   if (!username) {
@@ -293,6 +382,11 @@ async function handleAdminUpdateUser(request, env) {
     form = await request.formData();
   } catch {
     return redirect("/admin?error=Invalid%20form%20data");
+  }
+  const csrfToken = String(form.get("_csrf") || "");
+  const csrfValid = await verifyCsrfToken(csrfToken, env, "admin-users");
+  if (!csrfValid) {
+    return redirect("/admin?error=Invalid%20security%20token");
   }
 
   const currentUsername = String(form.get("current_username") || "").trim();
@@ -337,12 +431,20 @@ async function handleAdminUpdateUser(request, env) {
   );
 }
 
-function renderLoginPage(url) {
+async function renderLoginPage(url, env) {
   const next = sanitizeNext(url.searchParams.get("next"));
-  const hasError = url.searchParams.get("error") === "1";
-  const errorHtml = hasError
-    ? '<p class="error">اسم المستخدم أو كلمة المرور غير صحيحة.</p>'
-    : "";
+  const errorCode = String(url.searchParams.get("error") || "");
+  const csrfToken = await createCsrfToken(env, "app-login");
+  let errorHtml = "";
+  if (errorCode === "1") {
+    errorHtml = '<p class="error">اسم المستخدم أو كلمة المرور غير صحيحة.</p>';
+  } else if (errorCode === "2") {
+    errorHtml =
+      '<p class="error">تم إيقاف تسجيل الدخول مؤقتًا بعد محاولات كثيرة. حاول لاحقًا.</p>';
+  } else if (errorCode === "3") {
+    errorHtml =
+      '<p class="error">رمز الأمان غير صالح. أعد فتح الصفحة وحاول مرة أخرى.</p>';
+  }
 
   const html = `<!doctype html>
 <html lang="ar" dir="rtl">
@@ -378,6 +480,7 @@ function renderLoginPage(url) {
       <p class="sub">تسجيل الدخول للوصول إلى التطبيق</p>
       ${errorHtml}
       <form method="post" action="/login" autocomplete="off">
+        <input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">
         <input type="hidden" name="next" value="${escapeHtml(next)}">
         <label for="username">اسم المستخدم</label>
         <input id="username" name="username" required>
@@ -388,25 +491,27 @@ function renderLoginPage(url) {
       <div class="hint">نسخة محمية للاستخدام الداخلي</div>
     </section>
   </main>
-  <script>
-    if (window.location.search) {
-      history.replaceState(null, "", window.location.pathname);
-    }
-  </script>
 </body>
 </html>`;
 
   return htmlResponse(html);
 }
 
-function renderAdminLoginPage(url) {
+async function renderAdminLoginPage(url, env) {
   const errorCode = String(url.searchParams.get("error") || "");
+  const csrfToken = await createCsrfToken(env, "admin-login");
 
   let errorHtml = "";
   if (errorCode === "1") {
     errorHtml = '<p class="error">Invalid admin credentials.</p>';
   } else if (errorCode === "2") {
-    errorHtml = '<p class="error">ADMIN_PASSWORD secret is missing.</p>';
+    errorHtml =
+      '<p class="error">Too many failed attempts. Please wait 15 minutes.</p>';
+  } else if (errorCode === "3") {
+    errorHtml = '<p class="error">Invalid security token. Reload and try again.</p>';
+  } else if (errorCode === "4") {
+    errorHtml =
+      '<p class="error">Admin credentials are not configured (ADMIN_USERNAME/ADMIN_PASSWORD).</p>';
   }
 
   const html = `<!doctype html>
@@ -434,6 +539,7 @@ function renderAdminLoginPage(url) {
     <p>Sign in to manage users.</p>
     ${errorHtml}
     <form method="post" action="/admin/login" autocomplete="off">
+      <input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">
       <label for="username">Admin username</label>
       <input id="username" name="username" required>
       <label for="password">Admin password</label>
@@ -442,18 +548,20 @@ function renderAdminLoginPage(url) {
     </form>
     <div class="back"><a href="/login">Back to app login</a></div>
   </main>
-  <script>
-    if (window.location.search) {
-      history.replaceState(null, "", window.location.pathname);
-    }
-  </script>
 </body>
 </html>`;
 
   return htmlResponse(html);
 }
 
-function renderAdminPage({ adminUsername, usersArray, mode, message, error }) {
+function renderAdminPage({
+  adminUsername,
+  usersArray,
+  mode,
+  message,
+  error,
+  csrfToken,
+}) {
   const readonly = mode === "read-only";
   const rows = usersArray.length
     ? usersArray
@@ -463,14 +571,14 @@ function renderAdminPage({ adminUsername, usersArray, mode, message, error }) {
   <td>${escapeHtml(username)}</td>
   <td>
     <form method="post" action="/admin/users/update" style="margin-bottom:8px;">
+      <input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">
       <input type="hidden" name="current_username" value="${escapeHtml(username)}">
       <input type="text" name="new_username" value="${escapeHtml(username)}" placeholder="New username" ${readonly ? "disabled" : ""}>
       <input type="password" name="new_password" placeholder="New password" ${readonly ? "disabled" : ""}>
       <button type="submit" class="btn warning" ${readonly ? "disabled" : ""}>Update</button>
     </form>
-    <form method="post" action="/admin/users/delete" onsubmit="return confirm('Delete user ${escapeHtml(
-      username
-    )}?');">
+    <form method="post" action="/admin/users/delete">
+      <input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">
       <input type="hidden" name="username" value="${escapeHtml(username)}">
       <button type="submit" class="btn danger" ${readonly ? "disabled" : ""}>Delete</button>
     </form>
@@ -543,6 +651,7 @@ function renderAdminPage({ adminUsername, usersArray, mode, message, error }) {
       <section class="card">
         <h2>Add / Update User</h2>
         <form method="post" action="/admin/users/add" autocomplete="off">
+          <input type="hidden" name="_csrf" value="${escapeHtml(csrfToken)}">
           <label for="username">Username</label>
           <input id="username" name="username" placeholder="user1" required ${readonly ? "disabled" : ""}>
           <label for="password">Password</label>
@@ -565,11 +674,6 @@ function renderAdminPage({ adminUsername, usersArray, mode, message, error }) {
       </section>
     </div>
   </div>
-  <script>
-    if (window.location.search) {
-      history.replaceState(null, "", window.location.pathname);
-    }
-  </script>
 </body>
 </html>`;
 
@@ -598,8 +702,15 @@ async function saveUsers(usersMap, env) {
   }
 
   const obj = {};
-  for (const [username, password] of usersMap.entries()) {
-    obj[username] = password;
+  for (const [username, credential] of usersMap.entries()) {
+    if (!username) continue;
+    if (isLegacyCredential(credential)) {
+      obj[username] = await createHashedCredential(credential);
+      continue;
+    }
+    if (isHashedCredential(credential)) {
+      obj[username] = credential;
+    }
   }
 
   await env.USERS_KV.put(USERS_KV_KEY, JSON.stringify(obj));
@@ -613,12 +724,59 @@ function objectToUsersMap(obj) {
   const map = new Map();
   if (!obj || typeof obj !== "object") return map;
 
-  for (const [username, password] of Object.entries(obj)) {
-    if (!username || typeof password !== "string") continue;
-    map.set(username, password);
+  for (const [username, credential] of Object.entries(obj)) {
+    if (!username) continue;
+    if (typeof credential === "string") {
+      map.set(username, credential);
+      continue;
+    }
+    if (isHashedCredential(credential)) {
+      map.set(username, credential);
+    }
   }
 
   return map;
+}
+
+function isLegacyCredential(credential) {
+  return typeof credential === "string" && credential.length > 0;
+}
+
+function isHashedCredential(credential) {
+  const iter = credential?.iter;
+  return (
+    !!credential &&
+    typeof credential === "object" &&
+    credential.v === PASSWORD_SCHEMA_VERSION &&
+    credential.alg === PASSWORD_HASH_ALG &&
+    Number.isInteger(iter) &&
+    iter >= 100000 &&
+    iter <= 1000000 &&
+    typeof credential.salt === "string" &&
+    /^[A-Za-z0-9_-]+$/.test(credential.salt) &&
+    typeof credential.hash === "string"
+  );
+}
+
+async function verifyUserCredentials(users, username, password) {
+  const stored = users.get(username);
+  if (!stored) return { ok: false, needsUpgrade: false };
+
+  if (isLegacyCredential(stored)) {
+    return { ok: safeEqual(password, stored), needsUpgrade: true };
+  }
+
+  if (!isHashedCredential(stored)) {
+    return { ok: false, needsUpgrade: false };
+  }
+
+  let valid = false;
+  try {
+    valid = await verifyHashedCredential(password, stored);
+  } catch {
+    valid = false;
+  }
+  return { ok: valid, needsUpgrade: false };
 }
 
 function isValidUsername(username) {
@@ -630,6 +788,16 @@ function isValidPassword(password) {
 }
 
 async function requireAdminAccess(request, env) {
+  const adminSession = await readSessionFromCookie(
+    request,
+    env,
+    ADMIN_SESSION_COOKIE,
+    "admin"
+  );
+  if (adminSession.ok) {
+    return { ok: true, username: adminSession.username };
+  }
+
   const appSession = await readSessionFromCookie(
     request,
     env,
@@ -641,16 +809,6 @@ async function requireAdminAccess(request, env) {
       return { ok: true, username: appSession.username };
     }
     return { ok: false, username: "" };
-  }
-
-  const adminSession = await readSessionFromCookie(
-    request,
-    env,
-    ADMIN_SESSION_COOKIE,
-    "admin"
-  );
-  if (adminSession.ok) {
-    return { ok: true, username: adminSession.username };
   }
 
   return { ok: false, username: "" };
@@ -707,16 +865,18 @@ async function readSessionFromCookie(request, env, cookieName, expectedType) {
   };
 }
 
-function applyNoStoreToHtmlResponse(response) {
+function applyNoStoreAndSecurityToHtmlResponse(response, request) {
   if (!response || response.status !== 200) return response;
   const contentType = response.headers.get("Content-Type") || "";
   if (!contentType.includes("text/html")) return response;
 
   const headers = new Headers(response.headers);
+  headers.set("Content-Type", "text/html; charset=UTF-8");
   headers.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
   headers.set("Pragma", "no-cache");
   headers.set("Expires", "0");
-  headers.set("Vary", "Cookie");
+  headers.set("Vary", appendVary(headers.get("Vary"), "Cookie"));
+  addSecurityHeaders(headers, request, true);
   headers.delete("Content-Length");
 
   return new Response(response.body, {
@@ -769,8 +929,187 @@ async function sign(data, env) {
   return toBase64Url(new Uint8Array(signature));
 }
 
+function getAdminCredentials(env) {
+  const username = String(env.ADMIN_USERNAME || "").trim();
+  const password = String(env.ADMIN_PASSWORD || "").trim();
+  return {
+    configured: !!username && !!password,
+    username,
+    password,
+  };
+}
+
+async function createHashedCredential(password) {
+  const saltBytes = new Uint8Array(16);
+  crypto.getRandomValues(saltBytes);
+  const hash = await pbkdf2Hash(password, saltBytes, PASSWORD_HASH_ITERATIONS);
+  return {
+    v: PASSWORD_SCHEMA_VERSION,
+    alg: PASSWORD_HASH_ALG,
+    iter: PASSWORD_HASH_ITERATIONS,
+    salt: toBase64Url(saltBytes),
+    hash,
+  };
+}
+
+async function verifyHashedCredential(password, credential) {
+  try {
+    const salt = fromBase64Url(credential.salt);
+    const hash = await pbkdf2Hash(password, salt, credential.iter);
+    return safeEqual(hash, credential.hash);
+  } catch {
+    return false;
+  }
+}
+
+async function pbkdf2Hash(password, saltBytes, iterations) {
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      hash: "SHA-256",
+      salt: saltBytes,
+      iterations,
+    },
+    passwordKey,
+    256
+  );
+  return toBase64Url(new Uint8Array(bits));
+}
+
+async function createCsrfToken(env, formScope) {
+  const payload = toBase64Url(
+    new TextEncoder().encode(
+      JSON.stringify({
+        f: formScope,
+        t: Date.now(),
+        n: randomHex(16),
+      })
+    )
+  );
+  const signature = await sign(`csrf:${payload}`, env);
+  return `${payload}.${signature}`;
+}
+
+async function verifyCsrfToken(token, env, formScope) {
+  if (!token || !token.includes(".")) return false;
+  const dot = token.lastIndexOf(".");
+  if (dot <= 0) return false;
+
+  const payload = token.slice(0, dot);
+  const signature = token.slice(dot + 1);
+  const expectedSignature = await sign(`csrf:${payload}`, env);
+  if (!safeEqual(signature, expectedSignature)) return false;
+
+  try {
+    const raw = new TextDecoder().decode(fromBase64Url(payload));
+    const data = JSON.parse(raw);
+    if (!data || data.f !== formScope) return false;
+    if (typeof data.t !== "number") return false;
+    const ageSeconds = (Date.now() - data.t) / 1000;
+    if (ageSeconds < 0 || ageSeconds > CSRF_TTL_SECONDS) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function getRateLimitState(request, env, scope) {
+  if (!env.AUTH_KV) return { blocked: false, count: 0 };
+  const key = rateLimitKey(request, scope);
+  const raw = await env.AUTH_KV.get(key);
+  if (!raw) return { blocked: false, count: 0 };
+
+  try {
+    const data = JSON.parse(raw);
+    if (typeof data.count !== "number" || typeof data.blockedUntil !== "number") {
+      return { blocked: false, count: 0 };
+    }
+
+    if (data.blockedUntil > 0) {
+      if (Date.now() < data.blockedUntil) {
+        return { blocked: true, count: Math.max(0, data.count) };
+      }
+      return { blocked: false, count: 0 };
+    }
+
+    return { blocked: false, count: Math.max(0, data.count) };
+  } catch {
+    return { blocked: false, count: 0 };
+  }
+}
+
+async function registerFailedLoginAttempt(request, env, scope) {
+  if (!env.AUTH_KV) return;
+  const key = rateLimitKey(request, scope);
+  const state = await getRateLimitState(request, env, scope);
+  const count = state.count + 1;
+  const blocked = count >= LOGIN_MAX_ATTEMPTS;
+  const payload = JSON.stringify({
+    count,
+    blockedUntil: blocked ? Date.now() + LOGIN_BLOCK_SECONDS * 1000 : 0,
+  });
+  await env.AUTH_KV.put(key, payload, {
+    expirationTtl: LOGIN_BLOCK_SECONDS,
+  });
+}
+
+async function clearFailedLoginAttempts(request, env, scope) {
+  if (!env.AUTH_KV) return;
+  const key = rateLimitKey(request, scope);
+  await env.AUTH_KV.delete(key);
+}
+
+function rateLimitKey(request, scope) {
+  const ip = getClientIp(request);
+  return `${AUTH_RATE_PREFIX}:${scope}:${ip}`;
+}
+
+function getClientIp(request) {
+  const cfIp = String(request.headers.get("CF-Connecting-IP") || "").trim();
+  if (cfIp) return cfIp;
+  const xff = String(request.headers.get("X-Forwarded-For") || "").trim();
+  if (xff) return xff.split(",")[0].trim();
+  return "unknown";
+}
+
+function addSecurityHeaders(headers, request, isHtml) {
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Referrer-Policy", "same-origin");
+  headers.set("Permissions-Policy", "geolocation=(), camera=(), microphone=()");
+  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  if (isHtml) {
+    headers.set("Content-Security-Policy", CSP_POLICY);
+  }
+  if (request) {
+    headers.set("Vary", appendVary(headers.get("Vary"), "Cookie"));
+  }
+}
+
+function appendVary(existing, token) {
+  const parts = String(existing || "")
+    .split(",")
+    .map(v => v.trim())
+    .filter(Boolean);
+  if (!parts.includes(token)) parts.push(token);
+  return parts.join(", ");
+}
+
+function randomHex(bytesLength) {
+  const bytes = new Uint8Array(bytesLength);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+}
+
 function requireSigningSecret(env) {
-  const secret = (env.SESSION_SECRET || env.BASIC_AUTH_USERS || "").trim();
+  const secret = String(env.SESSION_SECRET || "").trim();
   if (!secret) throw new Error("Missing signing secret");
   return secret;
 }
@@ -781,32 +1120,40 @@ function redirectToLogin(url) {
 }
 
 function redirect(location) {
+  const headers = new Headers({
+    Location: location,
+    "Cache-Control": "no-store",
+  });
+  addSecurityHeaders(headers, null, false);
   return new Response(null, {
     status: 302,
-    headers: {
-      Location: location,
-      "Cache-Control": "no-store",
-    },
+    headers,
   });
 }
 
 function methodNotAllowed() {
+  const headers = new Headers({
+    Allow: "GET, POST",
+    "Cache-Control": "no-store",
+  });
+  addSecurityHeaders(headers, null, false);
   return new Response("Method Not Allowed", {
     status: 405,
-    headers: {
-      Allow: "GET, POST",
-      "Cache-Control": "no-store",
-    },
+    headers,
   });
 }
 
 function htmlResponse(html) {
+  const headers = new Headers({
+    "Content-Type": "text/html; charset=UTF-8",
+    "Cache-Control": "no-store",
+    Pragma: "no-cache",
+    Expires: "0",
+  });
+  addSecurityHeaders(headers, null, true);
   return new Response(html, {
     status: 200,
-    headers: {
-      "Content-Type": "text/html; charset=UTF-8",
-      "Cache-Control": "no-store",
-    },
+    headers,
   });
 }
 

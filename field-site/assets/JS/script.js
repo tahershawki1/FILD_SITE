@@ -16,7 +16,7 @@
       { id:"natural-ground-survey", title:"رفع أرض طبيعية", desc:"(لاحقًا) فورم الأرض الطبيعية." },
     ];
 
-    const STORE_KEY = "field_site_onefile_v5";
+    const STORE_KEY = "field_site_onefile_v6";
     const state = { activeTaskId: null, tasksData: {} };
 
     const $ = (s, r=document) => r.querySelector(s);
@@ -40,14 +40,32 @@
     function setSave(){ }
 
     function load(){
-      // Always start with a clean state on full page reload.
-      // Theme preference is handled separately.
-      try { localStorage.removeItem(STORE_KEY); } catch (_) {}
-      state.activeTaskId = null;
-      state.tasksData = {};
+      const raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return;
+      try{
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return;
+        state.activeTaskId = typeof parsed.activeTaskId === "string" ? parsed.activeTaskId : null;
+        state.tasksData = parsed.tasksData && typeof parsed.tasksData === "object"
+          ? parsed.tasksData
+          : {};
+      }catch(e){
+        console.warn("Bad saved state", e);
+      }
     }
-    function save(){ }
-    const saveDebounced = ()=>{};
+    function save(){
+      try{
+        localStorage.setItem(STORE_KEY, JSON.stringify({
+          activeTaskId: state.activeTaskId,
+          tasksData: state.tasksData
+        }));
+        setSave("تم");
+      }catch(e){
+        console.error(e);
+        setSave("فشل", false);
+      }
+    }
+    const saveDebounced = debounce(save, 350);
 
     function fileToDataUrl(file){
       return new Promise((resolve, reject)=>{
@@ -61,18 +79,35 @@
     // Compress image before storing
     function compressImage(file, maxWidth=800, quality=0.7){
       return new Promise((resolve, reject)=>{
+        const objectUrl = URL.createObjectURL(file);
         const img = new Image();
         img.onload = ()=>{
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const ratio = maxWidth / img.width;
-          canvas.width = maxWidth;
-          canvas.height = img.height * ratio;
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob(resolve, 'image/jpeg', quality);
+          try{
+            if(img.width <= maxWidth){
+              URL.revokeObjectURL(objectUrl);
+              resolve(file);
+              return;
+            }
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const ratio = maxWidth / img.width;
+            canvas.width = maxWidth;
+            canvas.height = Math.round(img.height * ratio);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob((blob)=>{
+              URL.revokeObjectURL(objectUrl);
+              resolve(blob || file);
+            }, 'image/jpeg', quality);
+          }catch(err){
+            URL.revokeObjectURL(objectUrl);
+            reject(err);
+          }
         };
-        img.onerror = reject;
-        img.src = URL.createObjectURL(file);
+        img.onerror = (err)=>{
+          URL.revokeObjectURL(objectUrl);
+          reject(err);
+        };
+        img.src = objectUrl;
       });
     }
     function download(filename, text){
@@ -457,7 +492,7 @@
             <button class="btn ok" id="btnExportNewLevel">📄 تصدير JSON</button>
           </div>
 
-          <p class="note">الصور والبيانات تحفظ مؤقتًا خلال الجلسة الحالية فقط حتى التصدير.</p>
+          <p class="note">الصور والبيانات تحفظ محليًا على الجهاز (localStorage) حتى التصدير.</p>
         </section>
       `;
     }

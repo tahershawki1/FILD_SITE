@@ -2,6 +2,13 @@
 
 Last updated: 2026-02-14
 
+## IMPORTANT STATUS UPDATE (2026-02-16)
+
+1. `mobile-shell` (Capacitor) is archived and no longer the delivery path.
+2. Official Android shell is `mobile_shell_flutter`.
+3. Any old Capacitor build steps in this document are legacy reference only.
+4. For production, use Flutter build/signing workflow only.
+
 ## 1) الهدف النهائي
 
 تحويل مشروع `field-site` إلى تطبيق أندرويد (`APK`) مع نموذج تحديث مركزي:

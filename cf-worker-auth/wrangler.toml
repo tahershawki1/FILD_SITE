@@ -2,6 +2,9 @@ name = "atlas"
 main = "src/index.js"
 compatibility_date = "2026-02-15"
 
+[build]
+command = "node ./scripts/sync-sw-version.mjs"
+
 [assets]
 directory = "../field-site"
 binding = "ASSETS"
@@ -12,3 +15,8 @@ run_worker_first = true
 binding = "USERS_KV"
 id = "18901b5ddc754fbcba12d448e26ce5d1"
 preview_id = "edad56e7c4c94180b121331ba28a75fe"
+
+[[kv_namespaces]]
+binding = "AUTH_KV"
+id = "427b3587621a47b3a846b00270d20b99"
+preview_id = "83f64b3555ed425cbf635461a4ad9dbd"

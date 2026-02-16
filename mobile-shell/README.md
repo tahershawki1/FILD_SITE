@@ -1,36 +1,20 @@
-# Field Site Android Shell
+# mobile-shell (Archived)
 
-This folder contains a Capacitor Android shell that loads the web app from Cloudflare.
+This Capacitor shell is **archived** and kept for historical reference only.
 
-## 1) Update server URL
+## Status
 
-Edit `capacitor.config.ts`:
+- Do not use this folder for new Android releases.
+- Do not continue build/sign/distribution workflows from this shell.
+- No new feature work should be implemented here.
 
-- `server.url`: set your Cloudflare Pages/custom domain URL.
+## Official mobile path
 
-## 2) Install and create Android project
+Use Flutter shell only:
 
-```bash
-npm install
-npm run android:add
-npm run android:sync
-```
+- Project: `mobile_shell_flutter/`
+- Android build/signing and release should be done from Flutter workflow.
 
-## 3) Build release APK
+## Why this folder remains
 
-```bash
-npm run android:release
-```
-
-Release output (default):
-
-- `mobile-shell/android/app/build/outputs/apk/release/app-release.apk`
-
-## 4) Sign for production
-
-Use Android Studio (`Build > Generate Signed Bundle / APK`) or Gradle signing config.
-
-## 5) Update cycle
-
-- Web content updates: deploy only `field-site` to Cloudflare.
-- Native updates (plugins/permissions): rebuild and redistribute APK.
+It is retained for backward reference and audit history, not active delivery.

@@ -1,56 +1,57 @@
-﻿# Cloudflare Worker Auth + Admin Users
+# Cloudflare Worker Auth + Admin Users
 
 This worker protects `field-site` with:
 
 - Custom app login: `/login`
-- Session cookies (signed)
-- Admin panel to manage users: `/admin`
+- Signed session cookies
+- Admin panel for users management: `/admin`
+- CSRF protection for all POST endpoints
+- Login rate limiting (per IP)
+- Security headers (including CSP on HTML responses)
 
 ## Required secrets
 
 Run inside `cf-worker-auth`:
 
 ```bash
-npx wrangler secret put BASIC_AUTH_USERS
 npx wrangler secret put SESSION_SECRET
-npx wrangler secret put ADMIN_PASSWORD
-```
-
-Optional:
-
-```bash
 npx wrangler secret put ADMIN_USERNAME
+npx wrangler secret put ADMIN_PASSWORD
+npx wrangler secret put BASIC_AUTH_USERS
 ```
 
-- `BASIC_AUTH_USERS` example: `admin:123456,user1:abc789`
-- `ADMIN_USERNAME` default: `admin`
+Notes:
 
-## Enable dynamic Add/Delete users (recommended)
+- `SESSION_SECRET` must be long and random (at least 32 chars).
+- `ADMIN_USERNAME` and `ADMIN_PASSWORD` are mandatory.
+- Use strong passwords only (no weak defaults).
+- `BASIC_AUTH_USERS` is fallback seed format: `user1:StrongPass1!,user2:StrongPass2!`
 
-Admin add/delete needs a KV binding named `USERS_KV`.
+## KV bindings
 
-1. Create KV namespace in Cloudflare dashboard.
-2. Bind it to this Worker with binding name: `USERS_KV`.
+`USERS_KV` is required for persistent user management.
 
-Or with Wrangler:
+`AUTH_KV` is required for rate limiting counters.
 
-```bash
-npx wrangler kv namespace create USERS_KV
-```
-
-Then add binding in `wrangler.toml` (real IDs from your account):
+Example `wrangler.toml`:
 
 ```toml
 [[kv_namespaces]]
 binding = "USERS_KV"
-id = "<production_namespace_id>"
-preview_id = "<preview_namespace_id>"
+id = "<production_users_kv_id>"
+preview_id = "<preview_users_kv_id>"
+
+[[kv_namespaces]]
+binding = "AUTH_KV"
+id = "<production_auth_kv_id>"
+preview_id = "<preview_auth_kv_id>"
 ```
 
-If `USERS_KV` is missing:
+## Password storage
 
-- login still works from `BASIC_AUTH_USERS`
-- admin page opens in read-only mode (cannot add/delete)
+- New/updated users are stored as PBKDF2-SHA256 hashes.
+- Legacy plain-text users are supported temporarily.
+- On successful legacy login, credentials are automatically migrated to hashed format in `USERS_KV`.
 
 ## Routes
 
@@ -64,9 +65,6 @@ If `USERS_KV` is missing:
 - `POST /admin/users/update` rename user and/or change password
 - `POST /admin/users/delete` delete user
 - `GET /admin/logout` admin logout
-
-When a logged-in app user is the admin user (`ADMIN_USERNAME`, default `admin`),
-the app UI gets an in-app shortcut button to open `/admin`.
 
 ## Deploy
 
