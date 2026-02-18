@@ -21,6 +21,23 @@
 
     const $ = (s, r=document) => r.querySelector(s);
 
+    function safeStorageGet(key){
+      try{
+        return localStorage.getItem(key);
+      }catch(_){
+        return null;
+      }
+    }
+
+    function safeStorageSet(key, value){
+      try{
+        localStorage.setItem(key, value);
+        return true;
+      }catch(_){
+        return false;
+      }
+    }
+
     function escapeHtml(s){
       return String(s ?? "")
         .replaceAll("&","&amp;").replaceAll("<","&lt;")
@@ -42,7 +59,7 @@
     }
 
     function load(){
-      const raw = localStorage.getItem(STORE_KEY);
+      const raw = safeStorageGet(STORE_KEY);
       if(!raw) return;
       try{
         const parsed = JSON.parse(raw);
@@ -57,7 +74,7 @@
     }
     function save(){
       try{
-        localStorage.setItem(STORE_KEY, JSON.stringify({
+        safeStorageSet(STORE_KEY, JSON.stringify({
           activeTaskId: state.activeTaskId,
           tasksData: state.tasksData
         }));
@@ -1078,14 +1095,14 @@
     function toggleTheme(){
       const isLight = document.body.classList.contains("light-mode");
       const newTheme = isLight ? "dark" : "light";
-      localStorage.setItem("theme", newTheme);
+      safeStorageSet("theme", newTheme);
       document.body.classList.toggle("light-mode", !isLight);
       $("#themeToggle").textContent = newTheme === "light" ? "🌙" : "☀️";
     }
 
     function loadTheme(){
       // Keep the site on light mode as default/current appearance.
-      localStorage.setItem("theme", "light");
+      safeStorageSet("theme", "light");
       document.body.classList.add("light-mode");
       $("#themeToggle").textContent = "🌙";
     }

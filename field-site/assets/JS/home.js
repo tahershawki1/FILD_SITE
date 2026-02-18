@@ -18,6 +18,23 @@ const state = { activeTaskId: null, tasksData: {} };
 
 const $ = (s, r = document) => r.querySelector(s);
 
+function safeStorageGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (_) {
+    return null;
+  }
+}
+
+function safeStorageSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 function escapeHtml(s) {
   return String(s ?? "")
     .replaceAll("&", "&amp;")
@@ -28,7 +45,7 @@ function escapeHtml(s) {
 }
 
 function load() {
-  const raw = localStorage.getItem(STORE_KEY);
+  const raw = safeStorageGet(STORE_KEY);
   if (!raw) return;
   try {
     const parsed = JSON.parse(raw);
@@ -45,7 +62,7 @@ function load() {
 }
 
 function save() {
-  localStorage.setItem(
+  safeStorageSet(
     STORE_KEY,
     JSON.stringify({
       activeTaskId: state.activeTaskId,
@@ -66,7 +83,7 @@ function renderHomeCards() {
 }
 
 function loadTheme() {
-  localStorage.setItem("theme", "light");
+  safeStorageSet("theme", "light");
   document.body.classList.add("light-mode");
   $("#themeToggle").textContent = "🌙";
 }
@@ -74,7 +91,7 @@ function loadTheme() {
 function toggleTheme() {
   const isLight = document.body.classList.contains("light-mode");
   const newTheme = isLight ? "dark" : "light";
-  localStorage.setItem("theme", newTheme);
+  safeStorageSet("theme", newTheme);
   document.body.classList.toggle("light-mode", !isLight);
   $("#themeToggle").textContent = newTheme === "light" ? "🌙" : "☀️";
 }

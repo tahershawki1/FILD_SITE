@@ -1,6 +1,6 @@
 // Service Worker for Field Site PWA
 // Bump this on every release to invalidate old caches.
-const CACHE_VERSION = "v1.2.1";
+const CACHE_VERSION = "v1.2.2";
 const STATIC_CACHE = `field-site-static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `field-site-runtime-${CACHE_VERSION}`;
 
