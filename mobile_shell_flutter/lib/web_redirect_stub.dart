@@ -1,0 +1,1 @@
+void redirectToSite(String url) {}
