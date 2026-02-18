@@ -102,6 +102,7 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
   String? _loginError;
 
   bool _isLoadingPage = true;
+  bool _showBlockingLoader = true;
   int _progress = 0;
   String? _pageErrorMessage;
 
@@ -113,6 +114,7 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
 
   static const String _disableZoomJS = '''
     (function() {
+      window.__FIELD_APP_MODE = "flutter";
       var meta = document.querySelector('meta[name="viewport"]');
       if (meta) {
         meta.setAttribute('content',
@@ -184,6 +186,7 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
     setState(() {
       _stage = AppStage.booting;
       _isLoadingPage = true;
+      _showBlockingLoader = true;
       _progress = 0;
       _pageErrorMessage = null;
       _loginError = null;
@@ -247,7 +250,7 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
         onPageStarted: (_) {
           if (!mounted) return;
           setState(() {
-            _isLoadingPage = true;
+            _isLoadingPage = _showBlockingLoader;
             _progress = 0;
             _pageErrorMessage = null;
           });
@@ -263,6 +266,7 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
           if (!mounted) return;
           setState(() {
             _isLoadingPage = false;
+            _showBlockingLoader = false;
             _progress = 100;
           });
         },
@@ -359,6 +363,7 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
     setState(() {
       _stage = online ? AppStage.login : AppStage.offlineFirstLogin;
       _webViewController = null;
+      _showBlockingLoader = true;
       _hasUpdate = false;
       _remoteVersion = null;
       _localVersion = null;
@@ -686,8 +691,11 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
         },
         child: Scaffold(
           backgroundColor: Colors.white,
-          body: Stack(
-            children: [
+          body: SafeArea(
+            top: true,
+            bottom: false,
+            child: Stack(
+              children: [
               Positioned.fill(child: WebViewWidget(controller: controller)),
               if (_isLoadingPage && _pageErrorMessage == null)
                 Positioned.fill(
@@ -748,6 +756,7 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
                               onPressed: () async {
                                 setState(() {
                                   _isLoadingPage = true;
+                                  _showBlockingLoader = true;
                                   _progress = 0;
                                   _pageErrorMessage = null;
                                 });
@@ -765,7 +774,7 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
                 Positioned(
                   left: 12,
                   right: 12,
-                  top: MediaQuery.paddingOf(context).top + 10,
+                  top: 10,
                   child: Material(
                     color: Colors.transparent,
                     child: Container(
@@ -824,7 +833,8 @@ class _FieldSiteShellPageState extends State<FieldSiteShellPage>
                     ),
                   ),
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

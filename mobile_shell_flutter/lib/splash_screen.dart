@@ -90,35 +90,39 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
             ),
-            Center(
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: ScaleTransition(
-                  scale: _scaleAnimation,
-                  child: AnimatedBuilder(
-                    animation: _glowAnimation,
-                    builder: (context, child) {
-                      return DecoratedBox(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF9FDBFF,
-                              ).withValues(alpha: _glowAnimation.value),
-                              blurRadius: logoWidth * 0.28,
-                              spreadRadius: logoWidth * 0.05,
-                            ),
-                          ],
+            SafeArea(
+              top: true,
+              bottom: false,
+              child: Center(
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: AnimatedBuilder(
+                      animation: _glowAnimation,
+                      builder: (context, child) {
+                        return DecoratedBox(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF9FDBFF,
+                                ).withValues(alpha: _glowAnimation.value),
+                                blurRadius: logoWidth * 0.28,
+                                spreadRadius: logoWidth * 0.05,
+                              ),
+                            ],
+                          ),
+                          child: child,
+                        );
+                      },
+                      child: SizedBox(
+                        width: logoWidth,
+                        child: Image.asset(
+                          'assets/icons/loading-logo.png',
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
                         ),
-                        child: child,
-                      );
-                    },
-                    child: SizedBox(
-                      width: logoWidth,
-                      child: Image.asset(
-                        'assets/icons/loading-logo.png',
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.high,
                       ),
                     ),
                   ),

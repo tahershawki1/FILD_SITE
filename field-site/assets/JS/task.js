@@ -17,6 +17,8 @@
     ];
 
     const STORE_KEY = "field_site_onefile_v6";
+    const TASK_KEY_PREFIX = "field_site_task_v1_";
+    const STORAGE_MIGRATION_FLAG = "field_site_task_storage_migrated_v1";
     const state = { activeTaskId: null, tasksData: {} };
 
     const $ = (s, r=document) => r.querySelector(s);
@@ -36,6 +38,19 @@
       }catch(_){
         return false;
       }
+    }
+
+    function safeStorageRemove(key){
+      try{
+        localStorage.removeItem(key);
+        return true;
+      }catch(_){
+        return false;
+      }
+    }
+
+    function taskStorageKey(taskId){
+      return `${TASK_KEY_PREFIX}${taskId}`;
     }
 
     function escapeHtml(s){
@@ -58,26 +73,65 @@
       // Save toast intentionally disabled.
     }
 
-    function load(){
-      const raw = safeStorageGet(STORE_KEY);
-      if(!raw) return;
+    function load(taskId){
+      if(!taskId) return;
+
+      const directRaw = safeStorageGet(taskStorageKey(taskId));
+      if(directRaw){
+        try{
+          const parsed = JSON.parse(directRaw);
+          if(parsed && typeof parsed === "object"){
+            state.tasksData[taskId] = parsed;
+            state.activeTaskId = taskId;
+            return;
+          }
+        }catch(e){
+          console.warn("Bad task state", e);
+        }
+      }
+
+      // Backward compatibility: migrate from old single-key storage.
+      if(safeStorageGet(STORAGE_MIGRATION_FLAG) === "1") return;
+      const legacyRaw = safeStorageGet(STORE_KEY);
+      if(!legacyRaw) return;
       try{
-        const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== "object") return;
-        state.activeTaskId = typeof parsed.activeTaskId === "string" ? parsed.activeTaskId : null;
-        state.tasksData = parsed.tasksData && typeof parsed.tasksData === "object"
-          ? parsed.tasksData
-          : {};
+        const legacy = JSON.parse(legacyRaw);
+        const legacyTasks = legacy?.tasksData;
+        if(!legacyTasks || typeof legacyTasks !== "object"){
+          safeStorageSet(STORAGE_MIGRATION_FLAG, "1");
+          return;
+        }
+
+        for (const [legacyTaskId, legacyTaskData] of Object.entries(legacyTasks)) {
+          if(!legacyTaskData || typeof legacyTaskData !== "object") continue;
+          safeStorageSet(taskStorageKey(legacyTaskId), JSON.stringify(legacyTaskData));
+        }
+
+        safeStorageSet(STORAGE_MIGRATION_FLAG, "1");
+        safeStorageRemove(STORE_KEY);
+
+        const migratedRaw = safeStorageGet(taskStorageKey(taskId));
+        if(!migratedRaw) return;
+        const migrated = JSON.parse(migratedRaw);
+        if(migrated && typeof migrated === "object"){
+          state.tasksData[taskId] = migrated;
+          state.activeTaskId = taskId;
+        }
       }catch(e){
-        console.warn("Bad saved state", e);
+        console.warn("Bad legacy state", e);
       }
     }
     function save(){
+      const taskId = state.activeTaskId;
+      if(!taskId) return;
       try{
-        safeStorageSet(STORE_KEY, JSON.stringify({
-          activeTaskId: state.activeTaskId,
-          tasksData: state.tasksData
-        }));
+        const taskData = state.tasksData[taskId];
+        const key = taskStorageKey(taskId);
+        if(!taskData){
+          safeStorageRemove(key);
+        }else{
+          safeStorageSet(key, JSON.stringify(taskData));
+        }
         setSave("تم");
       }catch(e){
         console.error(e);
@@ -152,8 +206,24 @@
       }).join("");
     }
 
+    function getSiteRootPrefix(){
+      const fromWindow = typeof window.__FIELD_SITE_ROOT === "string"
+        ? window.__FIELD_SITE_ROOT.trim()
+        : "";
+      const fromHtml = (document.documentElement?.getAttribute("data-site-root") || "").trim();
+      const fallback = window.location.pathname.includes("/tasks/") ? "../" : "./";
+      const root = fromWindow || fromHtml || fallback;
+      if (!root) return "./";
+      return root.endsWith("/") ? root : `${root}/`;
+    }
+
+    function resolveSitePath(path){
+      const cleanPath = String(path || "").replace(/^\/+/, "");
+      return `${getSiteRootPrefix()}${cleanPath}`;
+    }
+
     function showHome(){
-      window.location.href = "./index.html";
+      window.location.href = resolveSitePath("index.html");
     }
 
     function ensureTaskData(taskId){
@@ -1129,6 +1199,18 @@
       return taskId || null;
     }
 
+    function getTaskIdFromPage(){
+      const fromWindow = typeof window.__TASK_ID__ === "string"
+        ? window.__TASK_ID__.trim()
+        : "";
+      if (fromWindow) return fromWindow;
+
+      const fromBody = (document.body?.dataset?.taskId || "").trim();
+      if (fromBody) return fromBody;
+
+      return null;
+    }
+
     function renderTaskSkeleton(task){
       if (!task) return;
       $("#viewTask").classList.add("active");
@@ -1147,14 +1229,14 @@
       loadTheme();
       wireGlobalEvents();
 
-      const fromUrl = getTaskIdFromUrl();
-      const task = fromUrl ? TASKS.find(t => t.id === fromUrl) : null;
+      const requestedTaskId = getTaskIdFromPage() || getTaskIdFromUrl();
+      const task = requestedTaskId ? TASKS.find(t => t.id === requestedTaskId) : null;
 
       if (task) {
         renderTaskSkeleton(task);
-        // Defer heavy localStorage JSON parse/render until after first paint.
+        // Defer heavy localStorage parse/render until after first paint.
         const run = () => {
-          load();
+          load(task.id);
           showTask(task.id);
           saveDebounced();
         };

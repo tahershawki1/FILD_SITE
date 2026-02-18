@@ -1,31 +1,22 @@
-<!doctype html>
-<html lang="ar" dir="rtl" data-site-root="./">
+﻿<!doctype html>
+<html lang="ar" dir="rtl" data-site-root="../">
   <head>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>الموقع الميداني - إدارة المشاريع الميدانية</title>
+    <title>الموقع الميداني - تشييك على منسوب الحفر</title>
     <meta name="theme-color" content="#63a5ff" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Field Site" />
-    <link rel="manifest" href="./manifest.json" />
-
-    <!--
-    ========================= MAIN PROJECT COMMENT =========================
-    ⚠️ WARNING FOR ANY AGENT / DEVELOPER (DO NOT DELETE) ⚠️
-    - ممنوع حذف أي بلوك تعليق عليه "MAIN PROJECT COMMENT" في المشروع بالكامل.
-    - التعليقات الرئيسية جزء من تنظيم الملف وتقسيمه (Pages/Sections/Storage).
-    - حذفها يضيّع هيكل المشروع ويصعّب التطوير لاحقًا.
-    =======================================================================
-  -->
-
-    <link rel="stylesheet" href="./assets/css/home.css" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="stylesheet" href="../assets/css/task.css" />
+    <link rel="stylesheet" href="../assets/css/tasks/check-excavation-level.css" />
   </head>
 
-  <body class="light-mode">
+  <body class="light-mode" data-task-id="check-excavation-level">
     <header class="premium-header">
       <div class="wrap">
         <div class="headRow">
@@ -33,7 +24,7 @@
             <div class="logo-shell">
               <div class="logo-icon">
                 <img
-                  src="./assets/icons/brand-logo.png"
+                  src="../assets/icons/brand-logo.png"
                   alt="Field Site Logo"
                   class="brand-logo-img"
                 />
@@ -41,7 +32,8 @@
               <span class="logo-stamp">ATLAS FIELD</span>
             </div>
             <div style="min-width: 0">
-              <h1 class="h1" id="topTitle">الموقع الميداني</h1>
+              <h1 class="h1" id="topTitle">تفاصيل البند</h1>
+              <p class="sub" id="topSub">إدخال البيانات والمخرجات الخاصة بالبند</p>
             </div>
           </div>
           <div class="headActions">
@@ -78,17 +70,33 @@
 
     <main class="content-wrapper">
       <div class="wrap safePad">
-        <section class="view active" id="viewHome">
-          <section class="cards-grid" id="cards"></section>
-          <div class="grid-footer" id="gridFooter">
-            <p class="completion-text">📊 اكتملت جميع البنود بنجاح!</p>
+        <section class="view active" id="viewTask">
+          <div class="task-header">
+            <button class="btn-back" id="btnBack">
+              <span class="back-icon">⬅️</span>
+              العودة
+            </button>
+            <button class="btn-reset" id="btnResetTask">
+              <span class="reset-icon">🗑️</span>
+              إعادة تعيين
+            </button>
           </div>
+
+          <section class="task-card">
+            <div class="task-title-section">
+              <h2 class="h2" id="taskTitle">—</h2>
+              <p class="sub" id="taskDesc">—</p>
+            </div>
+            <div class="steps" id="stepsBar" style="display: none"></div>
+          </section>
+
+          <div id="taskBody" class="task-body-container"></div>
         </section>
       </div>
     </main>
 
-    <!-- Scripts -->
-    <script src="./assets/JS/home.js" defer></script>
-    <script src="./assets/JS/pwa-update.js" defer></script>
+    <script src="../assets/JS/tasks/check-excavation-level.js" defer></script>
+    <script src="../assets/JS/task.js" defer></script>
+    <script src="../assets/JS/pwa-update.js" defer></script>
   </body>
 </html>

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
@@ -21,26 +20,24 @@ class UpdateCheckResult {
 }
 
 class OfflineSiteService {
-  OfflineSiteService({
-    Uri? siteUri,
-    SessionStore? sessionStore,
-  })  : _siteUri = siteUri ?? Uri.parse(AppConfig.siteUrl),
-        _sessionStore = sessionStore ?? SessionStore();
+  OfflineSiteService({Uri? siteUri, SessionStore? sessionStore})
+    : _siteUri = siteUri ?? Uri.parse(AppConfig.siteUrl),
+      _sessionStore = sessionStore ?? SessionStore();
 
   final Uri _siteUri;
   final SessionStore _sessionStore;
 
   Future<Directory> ensureBundleReady() async {
     final dir = await _bundleDir();
-    final indexFile = _fileFor(dir, 'index.html');
-    if (await indexFile.exists()) {
+    final hasAllFiles = await _hasAllSyncedFiles(dir);
+    if (hasAllFiles) {
       return dir;
     }
 
-    await _seedFromBundledAssets(dir);
-    final seededVersion = await readLocalVersion();
-    if (seededVersion != null && seededVersion.isNotEmpty) {
-      await _sessionStore.setLocalVersion(seededVersion);
+    await downloadAndApplyRemoteUpdate();
+    final hasAllAfterDownload = await _hasAllSyncedFiles(dir);
+    if (!hasAllAfterDownload) {
+      throw const FileSystemException('Local site bundle is incomplete.');
     }
     return dir;
   }
@@ -66,9 +63,10 @@ class OfflineSiteService {
   Future<String?> fetchRemoteVersion() async {
     try {
       final url = _siteUri.replace(path: '/version.json');
-      final response = await http.get(url, headers: const <String, String>{
-        'Cache-Control': 'no-store',
-      });
+      final response = await http.get(
+        url,
+        headers: const <String, String>{'Cache-Control': 'no-store'},
+      );
       if (response.statusCode != 200) return null;
       final decoded = jsonDecode(utf8.decode(response.bodyBytes));
       if (decoded is! Map<String, dynamic>) return null;
@@ -119,12 +117,15 @@ class OfflineSiteService {
     try {
       for (final relativePath in AppConfig.syncedFiles) {
         final uri = _siteUri.replace(path: '/$relativePath');
-        final response = await client.get(uri, headers: const <String, String>{
-          'Cache-Control': 'no-store',
-        });
+        final response = await client.get(
+          uri,
+          headers: const <String, String>{'Cache-Control': 'no-store'},
+        );
 
         if (response.statusCode != 200) {
-          throw HttpException('Failed to download $relativePath (${response.statusCode})');
+          throw HttpException(
+            'Failed to download $relativePath (${response.statusCode})',
+          );
         }
 
         final target = _fileFor(staging, relativePath);
@@ -165,25 +166,27 @@ class OfflineSiteService {
 
   Future<Directory> _bundleDir() async {
     final root = await getApplicationSupportDirectory();
-    final dir = Directory('${root.path}${Platform.pathSeparator}${AppConfig.localSiteDirName}');
+    final dir = Directory(
+      '${root.path}${Platform.pathSeparator}${AppConfig.localSiteDirName}',
+    );
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
     return dir;
   }
 
-  Future<void> _seedFromBundledAssets(Directory targetDir) async {
-    for (final relativePath in AppConfig.syncedFiles) {
-      final assetPath = '${AppConfig.bundledSiteAssetPrefix}/$relativePath';
-      final bytes = await rootBundle.load(assetPath);
-      final target = _fileFor(targetDir, relativePath);
-      await target.parent.create(recursive: true);
-      await target.writeAsBytes(bytes.buffer.asUint8List(), flush: true);
-    }
-  }
-
   File _fileFor(Directory root, String relativePath) {
     final normalized = relativePath.replaceAll('/', Platform.pathSeparator);
     return File('${root.path}${Platform.pathSeparator}$normalized');
+  }
+
+  Future<bool> _hasAllSyncedFiles(Directory root) async {
+    for (final relativePath in AppConfig.syncedFiles) {
+      final file = _fileFor(root, relativePath);
+      if (!await file.exists()) {
+        return false;
+      }
+    }
+    return true;
   }
 }

@@ -13,18 +13,7 @@ const TASKS = [
   { id: "natural-ground-survey", title: "رفع أرض طبيعية", desc: "(لاحقًا) فورم الأرض الطبيعية." },
 ];
 
-const STORE_KEY = "field_site_onefile_v6";
-const state = { activeTaskId: null, tasksData: {} };
-
 const $ = (s, r = document) => r.querySelector(s);
-
-function safeStorageGet(key) {
-  try {
-    return localStorage.getItem(key);
-  } catch (_) {
-    return null;
-  }
-}
 
 function safeStorageSet(key, value) {
   try {
@@ -44,38 +33,10 @@ function escapeHtml(s) {
     .replaceAll("'", "&#039;");
 }
 
-function load() {
-  const raw = safeStorageGet(STORE_KEY);
-  if (!raw) return;
-  try {
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return;
-    state.activeTaskId =
-      typeof parsed.activeTaskId === "string" ? parsed.activeTaskId : null;
-    state.tasksData =
-      parsed.tasksData && typeof parsed.tasksData === "object"
-        ? parsed.tasksData
-        : {};
-  } catch (e) {
-    console.warn("Bad saved state", e);
-  }
-}
-
-function save() {
-  safeStorageSet(
-    STORE_KEY,
-    JSON.stringify({
-      activeTaskId: state.activeTaskId,
-      tasksData: state.tasksData,
-    }),
-  );
-}
-
 function renderHomeCards() {
   $("#cards").innerHTML = TASKS.map((t) => {
-    const isDone = Boolean(state.tasksData[t.id]);
     return `
-      <a class="cardLink ${isDone ? "done" : ""}" href="./task.html?task=${encodeURIComponent(t.id)}">
+      <a class="cardLink" href="./tasks/${encodeURIComponent(t.id)}.html">
         <h3 class="cardTitle">${escapeHtml(t.title)}</h3>
       </a>
     `;
@@ -97,14 +58,11 @@ function toggleTheme() {
 }
 
 function showHome() {
-  state.activeTaskId = null;
-  save();
   renderHomeCards();
 
   const footer = $("#gridFooter");
   if (footer) {
-    const allDone = TASKS.every((t) => state.tasksData[t.id]);
-    footer.style.display = allDone ? "block" : "none";
+    footer.style.display = "none";
   }
 }
 
@@ -114,11 +72,24 @@ function wireGlobalEvents() {
 
 function warmTaskPageAssets() {
   const assets = [
-    { href: "./task.html", as: "document" },
+    ...TASKS.map((t) => ({
+      href: `./tasks/${encodeURIComponent(t.id)}.html`,
+      as: "document",
+    })),
     { href: "./assets/css/task.css", as: "style" },
     { href: "./assets/JS/task.js", as: "script" },
+    { href: "./assets/JS/pwa-update.js", as: "script" },
   ];
+
   for (const asset of assets) {
+    if (
+      document.head.querySelector(
+        `link[rel="prefetch"][href="${asset.href}"]`,
+      )
+    ) {
+      continue;
+    }
+
     const link = document.createElement("link");
     link.rel = "prefetch";
     link.href = asset.href;
@@ -128,7 +99,6 @@ function warmTaskPageAssets() {
 }
 
 (function init() {
-  load();
   loadTheme();
   showHome();
   wireGlobalEvents();

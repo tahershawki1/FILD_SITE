@@ -70,7 +70,6 @@ flutter:
     - assets/icons/brand-logo.png
     - assets/icons/loading-logo.png
     - assets/images/atlas_logo.png
-    - assets/offline_site/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

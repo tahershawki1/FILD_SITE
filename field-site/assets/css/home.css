@@ -395,11 +395,6 @@ body:not(.light-mode) .premium-header {
     border-color 0.2s ease;
 }
 
-.cardLink.done {
-  border-color: color-mix(in srgb, var(--success) 48%, var(--line-strong));
-  background: color-mix(in srgb, var(--success) 7%, var(--surface));
-}
-
 .cardLink:hover {
   transform: translate(-2px, -2px);
   box-shadow: var(--shadow-lg);

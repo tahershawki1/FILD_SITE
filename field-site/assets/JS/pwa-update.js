@@ -6,11 +6,28 @@
   const laterBtn = document.getElementById("btnLater");
   const updateText = document.getElementById("updateText");
   const VERSION_KEY = "field_site_seen_version";
+  const SITE_ROOT = getSiteRootPrefix();
 
   let registrationRef = null;
   let waitingWorker = null;
   let refreshing = false;
   let latestVersion = "";
+
+  function getSiteRootPrefix() {
+    const fromWindow = typeof window.__FIELD_SITE_ROOT === "string"
+      ? window.__FIELD_SITE_ROOT.trim()
+      : "";
+    const fromHtml = (document.documentElement?.getAttribute("data-site-root") || "").trim();
+    const fallback = window.location.pathname.includes("/tasks/") ? "../" : "./";
+    const root = fromWindow || fromHtml || fallback;
+    if (!root) return "./";
+    return root.endsWith("/") ? root : `${root}/`;
+  }
+
+  function withRoot(relativePath) {
+    const cleanPath = String(relativePath || "").replace(/^\/+/, "");
+    return `${SITE_ROOT}${cleanPath}`;
+  }
 
   function showUpdateBanner(version) {
     if (!banner) return;
@@ -44,7 +61,7 @@
 
   async function fetchLatestVersion() {
     try {
-      const response = await fetch("./version.json", { cache: "no-store" });
+      const response = await fetch(withRoot("version.json"), { cache: "no-store" });
       if (!response.ok) return "";
       const payload = await response.json();
       return payload.version || "";
@@ -119,9 +136,9 @@
 
   window.addEventListener("load", async () => {
     try {
-      const registration = await navigator.serviceWorker.register("./sw.js");
+      const registration = await navigator.serviceWorker.register(withRoot("sw.js"));
       registrationRef = registration;
-      console.log("SW registered:", registration);
+      await registration.update().catch(() => {});
 
       latestVersion = await fetchLatestVersion();
       if (latestVersion && !getRememberedVersion()) {
@@ -153,7 +170,7 @@
         }
       });
     } catch (registrationError) {
-      console.log("SW registration failed:", registrationError);
+      console.warn("SW registration failed:", registrationError);
     }
   });
 })();

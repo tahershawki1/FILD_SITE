@@ -1,16 +1,47 @@
 // Service Worker for Field Site PWA
 // Bump this on every release to invalidate old caches.
-const CACHE_VERSION = "v1.2.2";
-const STATIC_CACHE = `field-site-static-${CACHE_VERSION}`;
-const RUNTIME_CACHE = `field-site-runtime-${CACHE_VERSION}`;
+const CACHE_VERSION = "v1.0.0";
+const CACHE_REVISION = "meta-fix-20260218";
+const STATIC_CACHE = `field-site-static-${CACHE_VERSION}-${CACHE_REVISION}`;
+const RUNTIME_CACHE = `field-site-runtime-${CACHE_VERSION}-${CACHE_REVISION}`;
 
 const STATIC_ASSETS = [
   "./index.html",
+  "./task.html",
+  "./tasks/new-level.html",
+  "./tasks/check-tbm-villa-wall.html",
+  "./tasks/check-slabs.html",
+  "./tasks/check-excavation-level.html",
+  "./tasks/stake-demarcation.html",
+  "./tasks/stake-villa-points.html",
+  "./tasks/survey-for-consultant.html",
+  "./tasks/natural-ground-survey.html",
   "./manifest.json",
   "./version.json",
+  "./sw.js",
+  "./assets/css/home.css",
+  "./assets/css/task.css",
   "./assets/css/style.css",
+  "./assets/css/tasks/new-level.css",
+  "./assets/css/tasks/check-tbm-villa-wall.css",
+  "./assets/css/tasks/check-slabs.css",
+  "./assets/css/tasks/check-excavation-level.css",
+  "./assets/css/tasks/stake-demarcation.css",
+  "./assets/css/tasks/stake-villa-points.css",
+  "./assets/css/tasks/survey-for-consultant.css",
+  "./assets/css/tasks/natural-ground-survey.css",
+  "./assets/JS/home.js",
+  "./assets/JS/task.js",
   "./assets/JS/script.js",
   "./assets/JS/pwa-update.js",
+  "./assets/JS/tasks/new-level.js",
+  "./assets/JS/tasks/check-tbm-villa-wall.js",
+  "./assets/JS/tasks/check-slabs.js",
+  "./assets/JS/tasks/check-excavation-level.js",
+  "./assets/JS/tasks/stake-demarcation.js",
+  "./assets/JS/tasks/stake-villa-points.js",
+  "./assets/JS/tasks/survey-for-consultant.js",
+  "./assets/JS/tasks/natural-ground-survey.js",
   "./assets/icons/brand-logo.png",
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png"
