@@ -1,7 +1,7 @@
 # 📑 الفهرس الرئيسي - تصميم الموقع الميداني الجديد
 
-> Mobile shell status (2026-02-16): `mobile_shell_flutter` is the official path.
-> `mobile-shell` is archived for reference only.
+> Mobile shell status (2026-02-17): `mobile_shell_flutter` is the official and only path.
+> `mobile-shell` was removed from this repository on 2026-02-17.
 
 ## 🎯 مرحباً بك في مشروع التصميم الجديد!
 

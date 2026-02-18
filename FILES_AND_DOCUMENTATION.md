@@ -1,7 +1,7 @@
 # 📚 الملفات والوثائق المنشأة
 
-> Mobile shell status (2026-02-16): `mobile_shell_flutter` is official.
-> `mobile-shell` is archived and should not be used for new releases.
+> Mobile shell status (2026-02-17): `mobile_shell_flutter` is official and active.
+> `mobile-shell` was removed from this repository on 2026-02-17.
 
 ## نظرة عامة على الملفات
 

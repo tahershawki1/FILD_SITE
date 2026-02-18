@@ -1,160 +1,114 @@
-# Field Site - Android Handoff Plan
+# Field Site - Android Handoff Plan (Flutter)
 
-Last updated: 2026-02-14
+Last updated: 2026-02-17
 
-## IMPORTANT STATUS UPDATE (2026-02-16)
+## Current Status
 
-1. `mobile-shell` (Capacitor) is archived and no longer the delivery path.
-2. Official Android shell is `mobile_shell_flutter`.
-3. Any old Capacitor build steps in this document are legacy reference only.
-4. For production, use Flutter build/signing workflow only.
+1. `mobile_shell_flutter` is the official and only mobile path.
+2. `mobile-shell` (Capacitor) was removed from this repository on 2026-02-17.
+3. Android build, signing, and release must be done from Flutter workflow only.
 
-## 1) الهدف النهائي
+## 1) Final Goal
 
-تحويل مشروع `field-site` إلى تطبيق أندرويد (`APK`) مع نموذج تحديث مركزي:
+Build and deliver an Android APK shell for `field-site` where:
 
-1. مصدر الحقيقة للتحديثات يكون نسخة الويب المنشورة أونلاين.
-2. الـAPK يكون Android Shell (Capacitor) يفتح نفس الرابط.
-3. عند نزول نسخة جديدة يظهر للمستخدم Banner داخل التطبيق فيه زر `تحديث الآن`.
-4. لا نحتاج إعادة تثبيت APK إلا عند تغييرات Native.
+1. The web app remains the source of truth for feature/content updates.
+2. The APK is a Flutter WebView shell that opens the production URL.
+3. Web updates should not require a new APK unless native layer changes are needed.
 
-## 2) ما تم تنفيذه بالفعل
+## 2) What Is Already Implemented
 
-1. تم تنفيذ Update Flow داخل الويب:
-   - إضافة Update Banner في `field-site/index.html`.
-   - إضافة زر `تحديث الآن` + `لاحقًا`.
-   - عند الضغط على `تحديث الآن` يتم إرسال `SKIP_WAITING` للـService Worker ثم reload بعد `controllerchange`.
+1. Web update flow exists in `field-site` (banner + service worker update handling).
+2. PWA/service worker files are present:
+   - `field-site/sw.js`
+   - `field-site/version.json`
+   - `field-site/manifest.json`
+   - `field-site/_headers`
+3. Flutter shell exists and loads production URL:
+   - `mobile_shell_flutter/lib/main.dart`
+   - target URL: `https://atlas.geotools.workers.dev`
 
-2. تم إعادة بناء `Service Worker`:
-   - ملف `field-site/sw.js` يستخدم:
-   - `network-first` لملفات `index/manifest/sw/version`.
-   - `stale-while-revalidate` لباقي الملفات.
-   - حذف أي cache قديم عند `activate`.
-   - Message contract مفعل: `type: "SKIP_WAITING"`.
+## 3) Current Android Shell Config (Flutter)
 
-3. تم تجهيز PWA Assets:
-   - إضافة الأيقونات:
-   - `field-site/assets/icons/icon-192.png`
-   - `field-site/assets/icons/icon-512.png`
-   - تحديث `field-site/manifest.json` ليتوافق مع المسارات.
+1. Android namespace/application id:
+   - `com.taher.fieldsite`
+   - file: `mobile_shell_flutter/android/app/build.gradle.kts`
+2. Flutter app version:
+   - `1.0.0+1`
+   - file: `mobile_shell_flutter/pubspec.yaml`
+3. Current release build type is still using debug signing config:
+   - file: `mobile_shell_flutter/android/app/build.gradle.kts`
+   - this must be replaced with proper release signing before production distribution.
 
-4. تم إضافة metadata للإصدار:
-   - `field-site/version.json` موجود حاليًا على:
-   - `"version": "1.0.0"`
-   - `"releasedAt": "2026-02-14T00:00:00Z"`
-   - `"minShell": "1.0.0"`
+## 4) Build Steps (Windows)
 
-5. تم إعداد قواعد كاش Cloudflare:
-   - ملف `field-site/_headers` يطبق:
-   - `no-cache` لـ `index.html`, `sw.js`, `manifest.json`, `version.json`
-   - `max-age=300` لـ `/assets/*`
+Open terminal in:
 
-6. تم إنشاء هيكل Android Shell:
-   - مجلد `mobile-shell/` جاهز وفيه:
-   - `package.json` (أوامر Capacitor وAndroid)
-   - `capacitor.config.ts` (url مضبوط على الرابط الحقيقي)
-   - `README.md`, `tsconfig.json`, `www/index.html`
+`d:\001-reports\mobile_shell_flutter`
 
-7. تم ربط shell بالرابط المنشور:
-   - `mobile-shell/capacitor.config.ts`
-   - `server.url = "https://atlas.geotools.workers.dev"`
-
-8. تم التحقق من النشر:
-   - `https://atlas.geotools.workers.dev` -> 200
-   - `https://atlas.geotools.workers.dev/version.json` -> 200
-   - `https://atlas.geotools.workers.dev/sw.js` -> 200
-
-## 3) الحالة الحالية (Current State)
-
-1. الويب جاهز ومرفوع ويستقبل تحديثات.
-2. PWA update behavior جاهز.
-3. Android shell config جاهز.
-4. المتبقي فقط تنفيذ Build فعلي للـAPK على جهاز فيه Node + Java + Android SDK.
-
-## 4) ما لم يتم تنفيذه بعد (Pending)
-
-1. تشغيل `npm install` داخل `mobile-shell`.
-2. إضافة منصة Android (`npx cap add android`).
-3. عمل `sync` لملفات Capacitor.
-4. فتح Android Studio وبناء نسخة Signed Release APK.
-5. اختبار APK على جهاز فعلي قبل التوزيع.
-6. توزيع APK عبر رابط مباشر داخلي.
-
-## 5) خطوات التنفيذ على ويندوز التاني (Step-by-Step)
-
-افتح Terminal داخل:
-
-`d:\001-reports\mobile-shell`
-
-ثم نفذ بالترتيب:
+Run:
 
 ```bash
-npm install
-npx cap add android
-npx cap sync android
-npx cap open android
+flutter pub get
+flutter doctor
+flutter build apk --release
 ```
 
-داخل Android Studio:
+Expected APK output:
 
-1. انتظر Gradle Sync يكتمل.
-2. من القائمة: `Build > Generate Signed Bundle / APK`.
-3. اختَر `APK`.
-4. أنشئ/اختَر keystore.
-5. Build نوع `release`.
-6. الناتج المتوقع:
-   - `mobile-shell/android/app/build/outputs/apk/release/app-release.apk`
+`mobile_shell_flutter/build/app/outputs/flutter-apk/app-release.apk`
 
-## 6) Checklist إغلاق المشروع
+Optional split-per-ABI output:
 
-1. تثبيت APK على موبايل Android.
-2. فتح التطبيق والتأكد أنه يفتح بدون شريط متصفح.
-3. تعديل بسيط في `field-site/index.html` ثم إعادة رفع `field-site`.
-4. زيادة `version.json` وتحديث `CACHE_VERSION` في `sw.js`.
-5. فتح التطبيق على الموبايل.
-6. التأكد أن Banner يظهر: نسخة جديدة متاحة.
-7. الضغط على `تحديث الآن` والتأكد أن المحتوى الجديد ظهر.
-8. التأكد أن بيانات `localStorage` ما اتحذفتش.
+```bash
+flutter build apk --release --split-per-abi
+```
 
-## 7) Workflow أي تحديث مستقبلي
+## 5) Production Signing (Required Before External Distribution)
 
-كل تحديث ويب جديد:
+Current config uses debug signing for release builds. To ship externally:
 
-1. عدّل ملفات `field-site`.
-2. حدث `field-site/version.json`:
-   - `version`
-   - `releasedAt`
-3. حدث `CACHE_VERSION` داخل `field-site/sw.js`.
-4. ارفع `field-site` على Cloudflare.
-5. لو حصل cache قديم عند بعض المستخدمين:
-   - Purge انتقائي لـ:
-   - `/index.html`
-   - `/sw.js`
-   - `/manifest.json`
-   - `/version.json`
+1. Create a release keystore.
+2. Add `key.properties` in `mobile_shell_flutter/android/` (not committed).
+3. Update signing config in `mobile_shell_flutter/android/app/build.gradle.kts` to use release keys.
+4. Rebuild using `flutter build apk --release`.
 
-متى نعيد بناء APK؟
+## 6) Validation Checklist
 
-1. فقط إذا غيرت Native layer (plugins/permissions/icon native/package id).
-2. تغييرات الويب العادية لا تحتاج APK جديد.
+1. Install APK on a real Android device.
+2. Confirm app opens production URL inside WebView.
+3. Confirm back navigation behavior works as expected.
+4. Confirm loading/error states appear correctly on network issues.
+5. Confirm a web-only update (in `field-site`) appears without rebuilding APK.
 
-## 8) ملاحظات مهمة
+## 7) Future Update Workflow
 
-1. لو النص العربي ظهر مشوه في أي Editor، افتح الملف بـ `UTF-8`.
-2. `mobile-shell/android` غير متولد بعد، وسيتولد بعد `npx cap add android`.
-3. `server.url` حاليًا مرتبط مباشرة بالإنتاج:
-   - `https://atlas.geotools.workers.dev`
+For normal web updates:
 
-## 9) Prompt جاهز لبدء محادثة جديدة على الجهاز التاني
+1. Update files in `field-site/`.
+2. Bump `field-site/version.json` version and release date.
+3. Update cache version logic in `field-site/sw.js` when needed.
+4. Deploy `field-site` to Cloudflare.
+5. Purge affected cache paths if required.
 
-انسخ النص التالي كبداية:
+When to rebuild APK:
+
+1. Native permission changes.
+2. Native plugin changes.
+3. App id/icon/native Android config changes.
+
+## 8) Quick Resume Prompt
+
+Use this in a new session:
 
 ```text
 Continue from current state:
-- Project path: C:\Users\Taher\OneDrive\001-reports
-- Web app deployed at https://atlas.geotools.workers.dev
-- PWA update flow is implemented (update banner + SKIP_WAITING flow)
-- Service worker caching strategy is already updated
-- Need to continue from mobile-shell APK build steps:
-  npm install -> npx cap add android -> npx cap sync android -> open Android Studio -> generate signed release APK
+- Project path: d:\001-reports
+- Official mobile app: mobile_shell_flutter (Flutter only)
+- Old mobile-shell (Capacitor) path was removed on 2026-02-17
+- Web app is deployed at https://atlas.geotools.workers.dev
+- Build Android release APK from:
+  d:\001-reports\mobile_shell_flutter
+  flutter pub get
+  flutter build apk --release
 ```
